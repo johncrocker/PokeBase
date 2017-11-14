@@ -1,2 +1,3 @@
-# PokeBase
-A Pokemon Database
+# PokéBase
+
+A Pokémon Database
