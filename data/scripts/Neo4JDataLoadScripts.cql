@@ -22,6 +22,10 @@ LOAD CSV WITH HEADERS FROM "file:///pokemon_species.csv" AS value
 MATCH (species:Species {id: value.id}), (evolvesfrom:Species {id: value.evolves_from_species_id})
 CREATE(evolvesfrom)-[:EVOLVES_TO]->(species);
 
+LOAD CSV WITH HEADERS FROM "file:///pokemon_species.csv" AS value
+MATCH (species:Species {id: value.id}), (evolvesfrom:Species {id: value.evolves_from_species_id})
+CREATE(species)-[:EVOLVES_FROM]->(evolvesfrom);
+
 LOAD CSV WITH HEADERS FROM "file:///pokemon.csv" AS value
 MERGE (pokemon:Pokemon {id: value.id}) 
 ON CREATE SET pokemon.name = value.identifier, pokemon.weight = value.weight, pokemon.is_default = value.is_default, pokemon.height = value.height, pokemon.base_xp = value.base_experience, pokemon.id = value.id, pokemon.species_id = value.species_id;
@@ -52,6 +56,5 @@ CREATE(move)-[:HAS_GENERATION]->(generation);
 
 LOAD CSV WITH HEADERS FROM "file:///pokemon_moves.csv" AS value 
 MATCH (pokemon:Pokemon {id: value.pokemon_id}), (move:Move {id: value.move_id}) 
-CREATE(pokemon)-[:HAS_MOVE]->(move);
-
+MERGE(pokemon)-[:HAS_MOVE]->(move);
 
