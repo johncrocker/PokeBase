@@ -50,6 +50,22 @@ LOAD CSV WITH HEADERS FROM "file:///moves.csv" AS value
 MERGE (move:Move {id: value.id}) 
 ON CREATE SET move.name = value.identifier, move.id = value.id;
 
+LOAD CSV WITH HEADERS FROM "file:///types.csv" AS value 
+MERGE (type:Type {id: value.id}) 
+ON CREATE SET type.name = value.identifier, type.id = value.id;
+
+LOAD CSV WITH HEADERS FROM "file:///types.csv" AS value 
+MATCH (type:Type {id: value.id}), (generation:Generation {id: value.generation_id})
+CREATE(type)-[:HAS_GENERATION]->(generation);
+
+LOAD CSV WITH HEADERS FROM "file:///pokemon_types.csv" AS value 
+MATCH (type:Type {id: value.type_id}) , (pokemon:Pokemon{id: value.pokemon_id})
+CREATE(pokemon)-[:IS_TYPE{slot: value.slot}]->(type);
+
+LOAD CSV WITH HEADERS FROM "file:///type_efficacy.csv" AS value 
+MATCH (damage:Type {id: value.damage_type_id}) , (target:Type{id: value.target_type_id})
+CREATE(damage)-[:TYPE_EFFICACY{factor: value.damage_factor}]->(target);
+
 LOAD CSV WITH HEADERS FROM "file:///moves.csv" AS value 
 MATCH (move:Move {id: value.id}) , (generation:Generation {id: value.generation_id})
 CREATE(move)-[:HAS_GENERATION]->(generation);
