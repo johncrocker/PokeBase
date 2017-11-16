@@ -288,7 +288,7 @@ __pycache__/
 *.xsd.cs
 
 # Vagrant box
-vagrant/var
+var
 .vagrant
 
 # Logs
