@@ -17,7 +17,7 @@ echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-se
 echo debconf neo4j/question select "I ACCEPT" | sudo debconf-set-selections
 echo debconf neo4j/question seen true | sudo debconf-set-selections
 sudo apt-get install oracle-java8-installer -y
-sudo apt-get install neo4j build-essential nodejs -y --force-yes
+sudo apt-get install neo4j build-essential nodejs docker docker-compose -y --force-yes
 service neo4j stop
 echo Installing APOC plugins
 cd /var/lib/neo4j/plugins
@@ -34,15 +34,13 @@ service neo4j start
 echo Waiting 5 seconds because Neo4J needs time to wake up fully..........
 sleep 5
 echo Downloading data and preparing database.............
-neo4j-shell -host 127.0.0.1 -file /data/scripts/Neo4JDataLoadScripts.cql
+neo4j-shell -host 127.0.0.1 -file /vagrant/data/scripts/Neo4JDataLoadScripts.cql
 npm install mocha express-generator nodemon --global 
 SCRIPT
 
 Vagrant.configure("2") do |config|
 	config.vm.hostname = "neo4j"
 	config.vm.box = "ubuntu/trusty64"		
-	config.vm.synced_folder "../data", "/data"
-	config.vm.synced_folder "../src", "/src"
 	config.vbguest.auto_update = true
 	config.vbguest.no_remote = false
 		
