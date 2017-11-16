@@ -5,7 +5,10 @@ SCRIPT
 $PROVISIONSCRIPT = <<SCRIPT
 ip="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 neo4jhost="$(hostname)"
- 
+
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 wget -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
 echo 'deb https://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
 sudo add-apt-repository ppa:webupd8team/java
@@ -17,7 +20,9 @@ echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-se
 echo debconf neo4j/question select "I ACCEPT" | sudo debconf-set-selections
 echo debconf neo4j/question seen true | sudo debconf-set-selections
 sudo apt-get install oracle-java8-installer -y
-sudo apt-get install neo4j build-essential nodejs docker docker-compose -y --force-yes
+sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual neo4j build-essential nodejs docker-ce -y --force-yes
+curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 service neo4j stop
 echo Installing APOC plugins
 cd /var/lib/neo4j/plugins
@@ -36,6 +41,7 @@ sleep 5
 echo Downloading data and preparing database.............
 neo4j-shell -host 127.0.0.1 -file /vagrant/data/scripts/Neo4JDataLoadScripts.cql
 npm install mocha express-generator nodemon --global 
+apt-get autoremove -y
 SCRIPT
 
 Vagrant.configure("2") do |config|
