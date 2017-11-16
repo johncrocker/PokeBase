@@ -5,39 +5,37 @@ SCRIPT
 $PROVISIONSCRIPT = <<SCRIPT
 ip="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 neo4jhost="$(hostname)"
-neo4jinstalled=$(dpkg-query -W --showformat='${Status}\n' neo4j|grep "install ok installed")
+ 
+wget -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
+echo 'deb https://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
+sudo add-apt-repository ppa:webupd8team/java
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get update -y
 
-if [ "" == "$neo4jinstalled" ]; then
-	wget -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
-	echo 'deb https://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
-	sudo add-apt-repository ppa:webupd8team/java
-	curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-	sudo apt-get update -y
+echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections 
+echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+echo debconf neo4j/question select "I ACCEPT" | sudo debconf-set-selections
+echo debconf neo4j/question seen true | sudo debconf-set-selections
+sudo apt-get install oracle-java8-installer -y
+sudo apt-get install neo4j build-essential nodejs -y --force-yes
+service neo4j stop
+echo Installing APOC plugins
+cd /var/lib/neo4j/plugins
+wget -q https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.3.0.1/apoc-3.3.0.1-all.jar
 
-	echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections 
-	echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
-	echo debconf neo4j/question select "I ACCEPT" | sudo debconf-set-selections
-	echo debconf neo4j/question seen true | sudo debconf-set-selections
-	sudo apt-get install oracle-java8-installer -y
-	sudo apt-get install neo4j build-essential nodejs -y --force-yes
-	service neo4j stop
-	echo Installing APOC plugins
-	cd /var/lib/neo4j/plugins
-	wget -q https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.3.0.1/apoc-3.3.0.1-all.jar
-	echo Setting up Directories.......	
-	rm -rf /vagrant/var
-	mkdir -p /vagrant/var/lib/neo4j/data
-	mkdir -p /vagrant/var/lib/neo4j/data/dbms
-	cp /vagrant/templates/auth /vagrant/var/lib/neo4j/data/dbms/auth
-	cp /vagrant/templates/neo4j.conf.template /etc/neo4j/neo4j.conf	
+echo Setting up Directories.......	
+rm -rf /vagrant/var
+mkdir -p /vagrant/var/lib/neo4j/data
+mkdir -p /vagrant/var/lib/neo4j/data/dbms
+cp /vagrant/templates/auth /vagrant/var/lib/neo4j/data/dbms/auth
+cp /vagrant/templates/neo4j.conf.template /etc/neo4j/neo4j.conf	
 
-	service neo4j start
-	echo Waiting 5 seconds because Neo4J needs time to wake up fully..........
-	sleep 5
-	echo Downloading data and preparing database.............
-	neo4j-shell -host 127.0.0.1 -file /data/scripts/Neo4JDataLoadScripts.cql
-fi
-
+service neo4j start
+echo Waiting 5 seconds because Neo4J needs time to wake up fully..........
+sleep 5
+echo Downloading data and preparing database.............
+neo4j-shell -host 127.0.0.1 -file /data/scripts/Neo4JDataLoadScripts.cql
+npm install mocha express-generator nodemon --global 
 SCRIPT
 
 Vagrant.configure("2") do |config|
