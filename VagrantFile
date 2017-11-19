@@ -1,0 +1,66 @@
+$STARTSCRIPT = <<SCRIPT
+service neo4j start
+SCRIPT
+
+$PROVISIONSCRIPT = <<SCRIPT
+ip="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+neo4jhost="$(hostname)"
+
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+wget -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
+echo 'deb https://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
+sudo add-apt-repository ppa:webupd8team/java
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get update -y
+
+echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections 
+echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+echo debconf neo4j/question select "I ACCEPT" | sudo debconf-set-selections
+echo debconf neo4j/question seen true | sudo debconf-set-selections
+sudo apt-get install oracle-java8-installer -y
+sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual neo4j build-essential nodejs docker-ce -y --force-yes
+curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+service neo4j stop
+echo Installing APOC plugins
+cd /var/lib/neo4j/plugins
+wget -q https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.3.0.1/apoc-3.3.0.1-all.jar
+
+echo Setting up Directories.......	
+rm -rf /vagrant/var
+mkdir -p /vagrant/var/lib/neo4j/data
+mkdir -p /vagrant/var/lib/neo4j/data/dbms
+cp /vagrant/templates/auth /vagrant/var/lib/neo4j/data/dbms/auth
+cp /vagrant/templates/neo4j.conf.template /etc/neo4j/neo4j.conf	
+
+service neo4j start
+echo Waiting 5 seconds because Neo4J needs time to wake up fully..........
+sleep 5
+echo Downloading data and preparing database.............
+neo4j-shell -host 127.0.0.1 -file /vagrant/data/scripts/Neo4JDataLoadScripts.cql
+npm install mocha express-generator nodemon --global 
+apt-get autoremove -y
+SCRIPT
+
+Vagrant.configure("2") do |config|
+	config.vm.hostname = "neo4j"
+	config.vm.box = "ubuntu/trusty64"		
+	config.vbguest.auto_update = true
+	config.vbguest.no_remote = false
+		
+	config.vm.provider :virtualbox do |vbox|
+		vbox.memory = 4096
+		vbox.cpus = 2
+		vbox.name="Neo4J PokeBase"
+	end
+	
+	config.vm.network  "private_network", ip: '192.168.56.104'
+	config.vm.network "forwarded_port", guest: 7473, host: 7473, protocol: "tcp"
+	config.vm.network "forwarded_port", guest: 7474, host: 7474, protocol: "tcp"
+	config.vm.network "forwarded_port", guest: 7687, host: 7687, protocol: "tcp"
+
+	config.vm.provision "shell", inline:$PROVISIONSCRIPT
+	config.vm.provision "shell", inline:$STARTSCRIPT, run: "always"
+end
