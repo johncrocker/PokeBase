@@ -2,5 +2,6 @@
     "dbUrl": "bolt://127.0.0.1:7687",
     "dbUsername": "neo4j",
     "dbPassword": "Password123",
-    "port": 3003
+    "port": 3003,
+    "imagePath": "../../images"
 }

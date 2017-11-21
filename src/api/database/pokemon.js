@@ -1,4 +1,5 @@
 var Promise = require('bluebird');
+var _ = require('underscore');
 var db = require('./db');
 var log = require('../log');
 var lib = {}
@@ -6,22 +7,227 @@ var lib = {}
 lib.getPokemon = function (pokemon) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (p:Pokemon)-[:HAS_SPECIES]->(s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) ' +
-            'WHERE p.name = {name} ' +
-            'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, s.name AS species, g.name AS generation, r.name AS region', {
+            'WHERE p.name = {name} OR p.id = {name}' +
+            'WITH p, s, g, r MATCH (p)-[:IS_TYPE]->(t:Type) ' +
+            'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, s.name AS species, g.id AS generationNumber, g.name AS generation, r.name AS region, COLLECT(t.name) AS types', {
                 name: pokemon
             }).then(function (result) {
-            resolve(mapRecords(result));
+
+            if (hasResults(result)) {
+                resolve(_.first(mapRecords(result)));
+            } else {
+                reject(createError());
+            }
         }).catch(function (error) {
-            reject(error);
+            reject(createError(error));
         });
     });
 };
+
+lib.getPokemonTypeEfficacy = function (pokemon) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (p:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type) ' +
+            'WHERE p.name = {pokemon} OR p.id = {pokemon} ' +
+            'RETURN defense.name AS defenseType, attack.name AS attackType, efficacy.effectiveness AS effectiveness ORDER BY toFloat(efficacy.effectiveness) DESC', {
+                pokemon: pokemon
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getTypeEfficacy = function (type) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH(defense:Type)-[efficacy:EFFICACY]->(attack:Type) ' +
+            'WHERE defense.name = {type} ' +
+            'RETURN defense.name AS defenseType, attack.name AS attackType, efficacy.effectiveness AS effectiveness ORDER BY toFloat(efficacy.effectiveness) DESC', {
+                type: type
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getGeneration = function (generation) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (g:Generation)-[:HAS_REGION]->(r:Region) ' +
+            'WHERE g.id = {id} RETURN g.id AS number, g.name AS name, r.name AS region ' +
+            'ORDER BY g.id ASC', {
+                id: generation
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(_.first(mapRecords(result)));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.listGenerations = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (g:Generation)-[:HAS_REGION]->(r:Region) ' +
+            'RETURN g.id AS number, g.name AS name, r.name AS region ORDER BY toInt(g.id) ASC', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.listSpecies = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) ' +
+            'RETURN s.id AS id, s.name AS name, g.id AS generationNumber, g.name AS generation, r.name AS region ORDER BY toInt(s.id) ASC', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getSpecies = function (species) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) WHERE s.name = {species} OR s.id = {species} ' +
+            'WITH s,g,r MATCH(p:Pokemon)-[:HAS_SPECIES]->(s) ' +
+            'WITH s,g,r,p MATCH(p)-[:IS_TYPE]->(t:Type) ' +
+            'RETURN s.id AS id, s.name AS name, g.id AS generationNumber, g.name AS generation, r.name AS region, ' +
+            'p.id AS pokemon_id, p.name AS pokemon_name, p.weight AS pokemon_weight, p.base_xp AS pokemon_base_xp, p.is_default AS pokemon_is_default, p.height AS pokemon_height, COLLECT(t.name) AS types', {
+                species: species
+            }).then(function (data) {
+
+            if (!hasResults(data)) {
+                reject(createError());
+                return;
+            }
+            var rows = mapRecords(data);
+            var result = {
+                species: {
+                    id: rows[0].id,
+                    name: rows[0].name,
+                    generationNumber: rows[0].generationNumber,
+                    generation: rows[0].generation,
+                    region: rows[0].region
+                },
+                pokemon: []
+            };
+
+            _.each(rows, function (element) {
+                result.pokemon.push({
+                    id: element.pokemon_id,
+                    name: element.pokemon_name,
+                    weight: element.pokemon_weight,
+                    base_xp: element.pokemon_base_xp,
+                    is_default: element.pokemon_is_default,
+                    height: element.pokemon_height,
+                    types: element.types
+                });
+            });
+            resolve(result);
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getGenerationSpecies = function (generation) {
+    return new Promise(function (resolve, reject) {
+        lib.getGeneration(generation)
+            .then(function (generationResult) {
+                db.run('MATCH (g:Generation)-[:HAS_GENERATION]-(s:Species) ' +
+                    'WHERE g.id = {id} ' +
+                    'RETURN s.id AS id, s.name AS pokemon ' +
+                    ' ORDER BY toInt(s.id) ASC', {
+                        id: generation
+                    }).then(function (data) {
+
+                    if (!hasResults(data)) {
+                        reject(createError());
+                        return;
+                    }
+
+                    var rows = mapRecords(data);
+
+                    var result = {
+                        generation: generationResult,
+                        pokemon: []
+                    };
+
+                    _.each(rows, function (element) {
+                        result.pokemon.push({
+                            id: element.id,
+                            name: element.pokemon
+                        });
+                    });
+                    resolve(result);
+                }).catch(function (error) {
+                    reject(createError(error));
+                });
+            }).catch(function (error) {
+                reject(createError(error));
+            });
+    });
+
+};
+
+function createError(e) {
+    if (e) {
+        return {
+            statusCode: 500,
+            error: e
+        };
+    }
+
+    return {
+        statusCode: 404,
+        error: "Not found"
+    };
+}
+
+function hasResults(result) {
+    if (result == null) {
+        return false;
+    }
+
+    if ((result.records == null) || (result.records.length == 0)) {
+        return false;
+    }
+
+    return true;
+}
 
 function mapRecords(result) {
     var mappedResult = [];
 
     if (result == null) {
-        return mappedResult;
+        return null;
     }
 
     result.records.forEach(function (record) {
@@ -32,6 +238,9 @@ function mapRecords(result) {
         mappedResult.push(mappedRecord);
     });
 
+    if (mappedResult.length == 0) {
+        return null;
+    }
     return mappedResult;
 }
 
