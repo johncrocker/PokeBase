@@ -1,3 +1,4 @@
+var _ = require('underscore');
 var express = require('express');
 var router = express.Router();
 var pokemonDb = require('../database/pokemon');
@@ -22,6 +23,19 @@ router.get('/:name/attacks', function (req, res, next) {
   pokemonDb.getPokemonTypeEfficacy(req.params.name)
     .then(function (pokemon) {
       res.status(200).send(pokemon);
+    }).catch(function (e) {
+      log.info('Error in Get Pokemon Type Efficacy', e);
+      res.status(e.statusCode).send(e);
+    });
+});
+
+router.get('/:name/attackers', function (req, res, next) {
+  var effectiveness = (req.query.effectiveness ? parseInt(req.query.effectiveness) : 0);
+  var limit = (req.query.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER);
+
+  pokemonDb.getEffectivePokemon(req.params.name, effectiveness)
+    .then(function (pokemon) {
+      res.status(200).send(pokemon.slice(0, limit));
     }).catch(function (e) {
       log.info('Error in Get Pokemon Type Efficacy', e);
       res.status(e.statusCode).send(e);

@@ -43,6 +43,66 @@ lib.getPokemonTypeEfficacy = function (pokemon) {
     });
 };
 
+lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
+    if (minEffectiveness) {
+        return new Promise(function (resolve, reject) {
+            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon) ' +
+                'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) AND toFloat(efficacy.effectiveness) >= {mineffectiveness} ' +
+                'RETURN DISTINCT (attacker) AS attacker, toFloat(efficacy.effectiveness) AS effectiveness ' +
+                'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
+                    pokemon: pokemon,
+                    mineffectiveness: minEffectiveness
+                }).then(function (result) {
+
+                if (hasResults(result)) {
+                    resolve(formatResults(result));
+                } else {
+                    reject(createError());
+                }
+            }).catch(function (error) {
+                reject(createError(error));
+            });
+        });
+    } else {
+        return new Promise(function (resolve, reject) {
+            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon) ' +
+                'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) ' +
+                'RETURN DISTINCT (attacker) AS attacker, toFloat(efficacy.effectiveness) AS effectiveness ' +
+                'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
+                    pokemon: pokemon
+                }).then(function (result) {
+
+                if (hasResults(result)) {
+                    resolve(formatResults(result));
+                } else {
+                    reject(createError());
+                }
+            }).catch(function (error) {
+                reject(createError(error));
+            });
+        });
+    }
+
+    function formatResults(data) {
+        var rows = mapRecords(data);
+        var result = [];
+        _.each(rows, function (row) {
+            result.push({
+                attacker: {
+                    id: row.attacker.properties.id,
+                    name: row.attacker.properties.name,
+                    weight: row.attacker.properties.weight,
+                    base_xp: row.attacker.properties.base_xp,
+                    height: row.attacker.properties.height
+                },
+                effectiveness: row.effectiveness
+            })
+        });
+
+        return result;
+    }
+};
+
 lib.getTypeEfficacy = function (type) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH(defense:Type)-[efficacy:EFFICACY]->(attack:Type) ' +
