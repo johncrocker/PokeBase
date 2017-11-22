@@ -47,7 +47,7 @@ router.get('/:name/image', function (req, res, next) {
 
   pokemonDb.getPokemon(req.params.name)
     .then(function (pokemon) {
-      downloadImage(pad(pokemon.id, 3) + '.jpg', res);
+      downloadImage(pad(pokemon.id, 3) + '.png', res);
     }).catch(function (e) {
       downloadImage('empty.jpg', res);
     });
@@ -55,14 +55,19 @@ router.get('/:name/image', function (req, res, next) {
 
 function downloadImage(filename, res) {
   var file = path.join(path.resolve(config.get('imagePath')), filename);
+  var mimeType = 'image/png';
+  var dispositionFilename = filename;
+
   if (!fs.existsSync(file)) {
     file = path.join(path.resolve(config.get('imagePath')), 'empty.jpg');
+    mimeType = 'image/jpeg';
+    dispositionFilename = 'empty.jpg';
   }
 
   var s = fs.createReadStream(file);
   s.on('open', function () {
-    res.set('Content-Disposition', 'inline; filename="' + filename + '"');
-    res.set('Content-Type', 'image/jpeg');
+    res.set('Content-Disposition', 'inline; filename="' + dispositionFilename + '"');
+    res.set('Content-Type', mimeType);
     s.pipe(res);
   });
   s.on('error', function (err) {
@@ -73,7 +78,7 @@ function downloadImage(filename, res) {
 
 function pad(n, width, z) {
   z = z || '0';
-  n = n + '';
+  n = n + ''; 
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 

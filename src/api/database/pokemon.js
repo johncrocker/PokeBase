@@ -46,9 +46,9 @@ lib.getPokemonTypeEfficacy = function (pokemon) {
 lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
     if (minEffectiveness) {
         return new Promise(function (resolve, reject) {
-            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon) ' +
+            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon)-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
                 'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) AND toFloat(efficacy.effectiveness) >= {mineffectiveness} ' +
-                'RETURN DISTINCT (attacker) AS attacker, toFloat(efficacy.effectiveness) AS effectiveness ' +
+                'RETURN DISTINCT (attacker) AS attacker, s.name AS species,COLLECT(g.id) AS generations, toFloat(efficacy.effectiveness) AS effectiveness ' +
                 'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
                     pokemon: pokemon,
                     mineffectiveness: minEffectiveness
@@ -65,9 +65,9 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
         });
     } else {
         return new Promise(function (resolve, reject) {
-            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon) ' +
+            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon)-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
                 'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) ' +
-                'RETURN DISTINCT (attacker) AS attacker, toFloat(efficacy.effectiveness) AS effectiveness ' +
+                'RETURN DISTINCT (attacker) AS attacker, s.name AS species, COLLECT(g.id) AS generations, toFloat(efficacy.effectiveness) AS effectiveness ' +
                 'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
                     pokemon: pokemon
                 }).then(function (result) {
@@ -88,13 +88,13 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
         var result = [];
         _.each(rows, function (row) {
             result.push({
-                attacker: {
-                    id: row.attacker.properties.id,
-                    name: row.attacker.properties.name,
-                    weight: row.attacker.properties.weight,
-                    base_xp: row.attacker.properties.base_xp,
-                    height: row.attacker.properties.height
-                },
+                id: row.attacker.properties.id,
+                name: row.attacker.properties.name,
+                weight: row.attacker.properties.weight,
+                base_xp: row.attacker.properties.base_xp,
+                height: row.attacker.properties.height,
+                species: row.species,
+                generations: row.generations,
                 effectiveness: row.effectiveness
             })
         });
