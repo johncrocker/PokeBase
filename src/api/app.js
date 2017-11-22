@@ -44,25 +44,6 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-function exitHandler(options, err) {
-  if (global.database) {
-    log.info('Closing any open database connections');
-    global.database.close();
-  }
-}
-
-process.on('exit', exitHandler.bind(null,{cleanup:true}));
-
-//catches ctrl+c event
-process.on('SIGINT', exitHandler.bind(null, {exit:true}));
-
-// catches "kill pid" (for example: nodemon restart)
-process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
-process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
-
-//catches uncaught exceptions
-process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
-
 log.info('Listening on port ', config.get('port'))
 
 app.listen(config.get('port'));
