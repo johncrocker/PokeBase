@@ -173,6 +173,22 @@ lib.listSpecies = function () {
     });
 };
 
+lib.listUniqueSpecies = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (s:Species) ' +
+            'RETURN s.id AS id, s.name AS name ORDER BY toInt(s.id) ASC', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
 lib.getSpecies = function (species) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) WHERE s.name = {species} OR s.id = {species} ' +
@@ -260,13 +276,13 @@ lib.getGenerationSpecies = function (generation) {
 function createError(e) {
     if (e) {
         return {
-            statusCode: 500,
+            status: 500,
             error: e
         };
     }
 
     return {
-        statusCode: 404,
+        status: 404,
         error: "Not found"
     };
 }

@@ -11,7 +11,7 @@ router.get('/:number', function (req, res, next) {
         .send(generation);
     }).catch(function (e) {
       log.info('Error in Get Generation', e);
-      res.status(e.statusCode).send(e);
+      res.status(e.status).send(e);
     });
 });
 
@@ -23,7 +23,7 @@ router.get('/:number/species', function (req, res, next) {
         .send(generation);
     }).catch(function (e) {
       log.info('Error in Get Generation Species', e);
-      res.status(e.statusCode).send(e);
+      res.status(e.status).send(e);
     });
 });
 

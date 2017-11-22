@@ -11,7 +11,7 @@ router.get('/', function (req, res, next) {
         .send(generations);
     }).catch(function (e) {
       log.info('Error in List Generations', e);
-      res.status(e.statusCode).send(e);
+      res.status(e.status).send(e);
     });
 });
 

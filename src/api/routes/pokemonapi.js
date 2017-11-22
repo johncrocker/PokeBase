@@ -14,7 +14,7 @@ router.get('/:name', function (req, res, next) {
       res.status(200).send(pokemon);
     }).catch(function (e) {
       log.info('Error in Get Pokemon', e);
-      res.status(e.statusCode).send(e);
+      res.status(e.status).send(e);
     });
 });
 
@@ -25,7 +25,7 @@ router.get('/:name/attacks', function (req, res, next) {
       res.status(200).send(pokemon);
     }).catch(function (e) {
       log.info('Error in Get Pokemon Type Efficacy', e);
-      res.status(e.statusCode).send(e);
+      res.status(e.status).send(e);
     });
 });
 
@@ -38,7 +38,7 @@ router.get('/:name/attackers', function (req, res, next) {
       res.status(200).send(pokemon.slice(0, limit));
     }).catch(function (e) {
       log.info('Error in Get Pokemon Type Efficacy', e);
-      res.status(e.statusCode).send(e);
+      res.status(e.status).send(e);
     });
 });
 
