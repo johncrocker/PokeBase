@@ -24,17 +24,36 @@ module.exports = function (grunt) {
         }
       }
     },
+    watch: {
+      scripts: {
+        files: ['routes/*.js', 'templates/*.hbs'],
+        tasks: ['clean', 'handlebars', 'express:dev'],
+        options: {
+          spawn: false,
+        },
+      },
+    },
     nodemon: {
       dev: {
         script: './app.js'
       }
+    },
+    express: {
+      options: {},
+      dev: {
+        options: {
+          script: './app.js'
+        }
+      }
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-handlebars');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-nodemon');
+  grunt.loadNpmTasks('grunt-express-server');
 
-  grunt.registerTask('dev', ['clean', 'handlebars', 'nodemon:dev']);
+  grunt.registerTask('dev', ['clean', 'handlebars', 'express:dev', 'watch']);
   grunt.registerTask('prod', ['clean', 'handlebars']);
 };

@@ -12,7 +12,13 @@ $(document).ready(function () {
         var query = jQuery("#query").typeahead("getActive");
         apiClient.getSpecies(query.id)
             .then(function (species) {
-                jQuery("#results").html(JST.speciesdetail(species));
+                apiClient.getAttackers(query.id, 1, 10)
+                    .then(function (attackers) {
+                        jQuery("#results").html(JST.speciesdetail({
+                            detail: species,
+                            attackers: attackers
+                        }));
+                    }).catch(function (e) {});
             }).catch(function (e) {});
         return false;
     });
