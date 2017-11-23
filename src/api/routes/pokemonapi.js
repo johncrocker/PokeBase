@@ -4,8 +4,7 @@ var router = express.Router();
 var pokemonDb = require('../database/pokemon');
 var log = require('../log');
 var config = require('../config');
-var path = require('path');
-var fs = require('fs');
+var image = require('../lib/image');
 
 router.get('/:name', function (req, res, next) {
 
@@ -43,42 +42,20 @@ router.get('/:name/attackers', function (req, res, next) {
 });
 
 router.get('/:name/image', function (req, res, next) {
-  var imagePath = '';
-
+  var size = (req.query.size ? parseInt(req.query.size) : 0);
+  
   pokemonDb.getPokemon(req.params.name)
     .then(function (pokemon) {
-      downloadImage(pad(pokemon.id, 3) + '.png', res);
+      image.downloadImage(pad(pokemon.id, 3) + '.png', res, size);
     }).catch(function (e) {
-      downloadImage('empty.jpg', res);
+      image.downloadImage('empty.jpg', res, size);
     });
 });
 
-function downloadImage(filename, res) {
-  var file = path.join(path.resolve(config.get('imagePath')), filename);
-  var mimeType = 'image/png';
-  var dispositionFilename = filename;
-
-  if (!fs.existsSync(file)) {
-    file = path.join(path.resolve(config.get('imagePath')), 'empty.jpg');
-    mimeType = 'image/jpeg';
-    dispositionFilename = 'empty.jpg';
-  }
-
-  var s = fs.createReadStream(file);
-  s.on('open', function () {
-    res.set('Content-Disposition', 'inline; filename="' + dispositionFilename + '"');
-    res.set('Content-Type', mimeType);
-    s.pipe(res);
-  });
-  s.on('error', function (err) {
-    res.set('Content-Type', 'text/plain');
-    res.status(404).send(err);
-  });
-}
 
 function pad(n, width, z) {
   z = z || '0';
-  n = n + ''; 
+  n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 

@@ -8,9 +8,12 @@ $(document).ready(function () {
         }).catch(function (e) {});
 
     jQuery("#btnSearch").click(function () {
-        var query = jQuery("#query").val();
-        apiClient.getSpecies(query)
-            .then(function (species) {}).catch(function (e) {});
+        // var query = jQuery("#query").val();
+        var query = jQuery("#query").typeahead("getActive");
+        apiClient.getSpecies(query.id)
+            .then(function (species) {
+                jQuery("#results").html(JST.speciesdetail(species));
+            }).catch(function (e) {});
         return false;
     });
 });
