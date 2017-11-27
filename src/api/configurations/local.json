@@ -1,6 +1,7 @@
 {
-    "dbUrl": "bolt://192.168.56.104:7687",
+    "dbUrl": "bolt://127.0.0.1:7687",
     "dbUsername": "neo4j",
     "dbPassword": "password123",
-    "port": 3003
+    "port": 3003,
+    "imagePath": "../../images"
 }

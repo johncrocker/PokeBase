@@ -1,0 +1,81 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <strong>ID:</strong>
+        </div>
+        <div class="col-md-8">{{detail.species.id}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <strong>Name:</strong>
+        </div>
+        <div class="col-md-8">{{detail.species.name}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <strong>Generation:</strong>
+        </div>
+        <div class="col-md-8">{{detail.species.generationNumber}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <strong>Region:</strong>
+        </div>
+        <div class="col-md-8">{{detail.species.region}}</div>
+    </div>
+</div>
+
+<div class="container">
+    <table class="table table-bordered">
+        {{#each detail.pokemon}}
+        <tr>
+            <td class="col-md-2">
+                <p>
+                    <strong>{{name}}</strong>
+                </p>
+                <p>
+                    <img src="/api/pokemon/{{id}}/image?size=64" width="64" height="64" />
+                </p>
+            </td>
+            <td>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>ID:</strong>
+                        </div>
+                        <div class="col-md-8">{{id}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Types:</strong>
+                        </div>
+                        <div class="col-md-8">{{#each types}} {{this}}{{#unless @last}},{{/unless}} {{/each}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Weight:</strong>
+                        </div>
+                        <div class="col-md-8">{{weight}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Height:</strong>
+                        </div>
+                        <div class="col-md-8">{{height}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Base XP:</strong>
+                        </div>
+                        <div class="col-md-8">{{base_xp}}</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {{/each}}
+    </table>
+
+    {{#each attackers}}
+    <img src="/api/pokemon/{{id}}/image?size=32" alt="{{name}} {{effectiveness}}" title="{{name}} {{effectiveness}}" width="32" height="32" /> 
+    {{/each}}
+</div>

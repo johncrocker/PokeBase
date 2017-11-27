@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "start-dev": "nodemon app.js"
+    "start": "forever start ./app.js",
+    "stop": "forever stop ./app.js",
+    "start-dev": "nodemon ./app.js"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -15,9 +16,19 @@
     "hbs": "^4.0.1",
     "logger": "0.0.1",
     "nconf": "^0.9.1",
-    "neo4j-driver": "^1.5.0"
+    "neo4j-driver": "^1.5.0",
+    "sharp": "^0.18.4",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "forever": "^0.15.3",
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-handlebars": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-express-server": "^0.5.3",
+    "grunt-nodemon": "^0.4.2",
+    "handlebars": "^4.0.11",
     "jshint": "^2.9.5",
     "mocha": "^4.0.1",
     "nodemon": "^1.12.1"
