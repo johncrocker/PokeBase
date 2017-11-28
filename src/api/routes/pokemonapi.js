@@ -28,6 +28,17 @@ router.get('/:name/attacks', function (req, res, next) {
     });
 });
 
+router.get('/:name/moves', function (req, res, next) {
+
+  pokemonDb.getPokemonMoves(req.params.name)
+    .then(function (pokemon) {
+      res.status(200).send(pokemon);
+    }).catch(function (e) {
+      log.info('Error in Get Pokemon Moves', e);
+      res.status(e.status).send(e);
+    });
+});
+
 router.get('/:name/attackers', function (req, res, next) {
   var effectiveness = (req.query.effectiveness ? parseInt(req.query.effectiveness) : 0);
   var limit = (req.query.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER);
@@ -41,9 +52,20 @@ router.get('/:name/attackers', function (req, res, next) {
     });
 });
 
+router.get('/:name/evolutions', function (req, res, next) {
+
+  pokemonDb.getEvolutions(req.params.name)
+    .then(function (evolutions) {
+      res.status(200).send(evolutions);
+    }).catch(function (e) {
+      log.info('Error in Get Pokemon Evolutions', e);
+      res.status(e.status).send(e);
+    });
+});
+
 router.get('/:name/image', function (req, res, next) {
   var size = (req.query.size ? parseInt(req.query.size) : 0);
-  
+
   pokemonDb.getPokemon(req.params.name)
     .then(function (pokemon) {
       image.downloadImage(pad(pokemon.id, 3) + '.png', res, size);

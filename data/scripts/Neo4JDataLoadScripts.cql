@@ -48,7 +48,7 @@ CREATE(pokemon)-[:HAS_ABILITY {slot: value.slot, hidden: value.hidden}]->(abilit
 
 LOAD CSV WITH HEADERS FROM "file:///moves.csv" AS value 
 MERGE (move:Move {id: value.id}) 
-ON CREATE SET move.name = value.identifier, move.id = value.id;
+ON CREATE SET move.name = value.identifier, move.id = value.id, move.power = value.power, move.pp = value.pp, move.accuracy = value.accuracy;
 
 LOAD CSV WITH HEADERS FROM "file:///types.csv" AS value 
 MERGE (type:Type {id: value.id}) 
