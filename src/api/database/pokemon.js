@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 var _ = require('underscore');
 var db = require('./db');
 var log = require('../log');
-var lib = {}
+var lib = {};
 
 lib.getPokemon = function (pokemon) {
     return new Promise(function (resolve, reject) {
@@ -45,21 +45,21 @@ lib.getPokemonMoves = function (pokemon) {
 
 lib.getEvolutions = function (pokemon) {
     return new Promise(function (resolve, reject) {
-        db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+        db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE ((p.name = {name} OR p.id = {name}) ' +
             'OR (ef.name = {name} OR ef.id = {name}) ' +
             'OR (ev.name = {name} OR ev.id = {name})) ' +
-            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen', {
+            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 name: pokemon
             }).then(function (data) {
 
             if (hasResults(data)) {
                 resolve(formatResults(data));
             } else {
-                db.run('MATCH (p:Species)-[:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+                db.run('MATCH (p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
                     'WHERE ((p.name = {name} OR p.id = {name}) ' +
                     'OR (ev.name = {name} OR ev.id = {name})) ' +
-                    'RETURN p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen', {
+                    'RETURN p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                         name: pokemon
                     }).then(function (data) {
 
@@ -100,7 +100,11 @@ lib.getEvolutions = function (pokemon) {
             value.push({
                 id: element.toId,
                 name: element.toName,
-                generation: element.toGen
+                generation: element.toGen,
+                evolution_trigger_id: element.evolution_trigger_id,
+                trigger_item_id: element.trigger_item_id,
+                minimum_level: element.minimum_level,
+                time_of_day: element.time_of_day
             });
 
             result.push(value);
