@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 var _ = require('underscore');
 var db = require('./db');
 var log = require('../log');
-var lib = {}
+var lib = {};
 
 lib.getPokemon = function (pokemon) {
     return new Promise(function (resolve, reject) {
@@ -43,23 +43,130 @@ lib.getPokemonMoves = function (pokemon) {
     });
 };
 
+lib.listRegions = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation) ' +
+            'RETURN r.id AS id, r.name AS name, COLLECT(g.id) AS generationNumber', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.listEvolutionTriggers = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (t:Trigger) ' +
+            'RETURN t.id AS id, t.name AS name ' +
+            'ORDER BY t.id', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getEvolutionTrigger = function (evolution_trigger_id, trigger_item_id) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (t:Trigger), (i:Item)-[:HAS_CATEGORY]-(c:Category) ' +
+            'WHERE t.id = {triggerId} AND i.id = {itemId} ' +
+            'RETURN t.id as triggerId, t.name as triggerName, i.id AS itemId, i.name AS itemName, c.id AS categoryId, c.name AS categoryName', {
+                triggerId: evolution_trigger_id,
+                itemId: trigger_item_id
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.listItems = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (i:Item)-[:HAS_CATEGORY]-(c:Category) ' +
+            'RETURN i.id AS id, i.name AS name, c.id AS categoryId, c.name as categoryName', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getRegion = function (id) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation) ' +
+            'WHERE r.id = {name} OR r.id = {name} ' +
+            'RETURN r.id AS id, r.name AS name, COLLECT(g.id) AS generationNumber', {
+                name: id
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getRegionSpecies = function (id) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation)<-[:HAS_GENERATION]-(s:Species) ' +
+            'WHERE r.name = {name} OR r.id = {name} ' +
+            'RETURN s.id AS id, s.name AS name, g.id AS generationNumber ORDER BY s.id', {
+                name: id
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
 lib.getEvolutions = function (pokemon) {
     return new Promise(function (resolve, reject) {
-        db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+        db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE ((p.name = {name} OR p.id = {name}) ' +
             'OR (ef.name = {name} OR ef.id = {name}) ' +
             'OR (ev.name = {name} OR ev.id = {name})) ' +
-            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen', {
+            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 name: pokemon
             }).then(function (data) {
 
             if (hasResults(data)) {
                 resolve(formatResults(data));
             } else {
-                db.run('MATCH (p:Species)-[:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+                db.run('MATCH (p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
                     'WHERE ((p.name = {name} OR p.id = {name}) ' +
                     'OR (ev.name = {name} OR ev.id = {name})) ' +
-                    'RETURN p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen', {
+                    'RETURN p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                         name: pokemon
                     }).then(function (data) {
 
@@ -100,7 +207,11 @@ lib.getEvolutions = function (pokemon) {
             value.push({
                 id: element.toId,
                 name: element.toName,
-                generation: element.toGen
+                generation: element.toGen,
+                evolution_trigger_id: element.evolution_trigger_id,
+                trigger_item_id: element.trigger_item_id,
+                minimum_level: element.minimum_level,
+                time_of_day: element.time_of_day
             });
 
             result.push(value);

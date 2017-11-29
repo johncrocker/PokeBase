@@ -5,7 +5,16 @@ window.apiClient = {
     getSpecies: function (id) {
         return ajaxGetCall('/api/species/' + encodeURIComponent(id));
     },
-    getAttackers: function (id, effectiveness, limit) {
+    getPokemon: function (id) {
+        return ajaxGetCall('/api/pokemon/' + encodeURIComponent(id));
+    },
+    listPokemonAttackerTypes: function (id) {
+        return ajaxGetCall('/api/pokemon/' + encodeURIComponent(id) + '/attacks');
+    },
+    listPokemonMoves: function (id) {
+        return ajaxGetCall('/api/pokemon/' + encodeURIComponent(id) + '/moves');
+    },
+    listPokemonAttackers: function (id, effectiveness, limit) {
         var url = '/api/pokemon/' + encodeURIComponent(id) + '/attackers';
 
         if (effectiveness && effectiveness > 0) {
@@ -19,6 +28,18 @@ window.apiClient = {
         }
 
         return ajaxGetCall(url);
+    },
+    listPokemonEvolutions: function (id) {
+        return ajaxGetCall('/api/pokemon/' + encodeURIComponent(id) + '/evolutions');
+    },
+    listGenerations: function () {
+        return ajaxGetCall('/api/generations');
+    },
+    getGeneration: function (id) {
+        return ajaxGetCall('/api/generation/' + encodeURIComponent(id));
+    },
+    listGenerationSpecies: function (id) {
+        return ajaxGetCall('/api/generation/' + encodeURIComponent(id) + '/species');
     }
 };
 
