@@ -43,6 +43,113 @@ lib.getPokemonMoves = function (pokemon) {
     });
 };
 
+lib.listRegions = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation) ' +
+            'RETURN r.id AS id, r.name AS name, COLLECT(g.id) AS generationNumber', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.listEvolutionTriggers = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (t:Trigger) ' +
+            'RETURN t.id AS id, t.name AS name ' +
+            'ORDER BY t.id', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getEvolutionTrigger = function (evolution_trigger_id, trigger_item_id) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (t:Trigger), (i:Item)-[:HAS_CATEGORY]-(c:Category) ' +
+            'WHERE t.id = {triggerId} AND i.id = {itemId} ' +
+            'RETURN t.id as triggerId, t.name as triggerName, i.id AS itemId, i.name AS itemName, c.id AS categoryId, c.name AS categoryName', {
+                triggerId: evolution_trigger_id,
+                itemId: trigger_item_id
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.listItems = function () {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (i:Item)-[:HAS_CATEGORY]-(c:Category) ' +
+            'RETURN i.id AS id, i.name AS name, c.id AS categoryId, c.name as categoryName', {}).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getRegion = function (id) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation) ' +
+            'WHERE r.id = {name} OR r.id = {name} ' +
+            'RETURN r.id AS id, r.name AS name, COLLECT(g.id) AS generationNumber', {
+                name: id
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getRegionSpecies = function (id) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation)<-[:HAS_GENERATION]-(s:Species) ' +
+            'WHERE r.name = {name} OR r.id = {name} ' +
+            'RETURN s.id AS id, s.name AS name, g.id AS generationNumber ORDER BY s.id', {
+                name: id
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
 lib.getEvolutions = function (pokemon) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
