@@ -1,3 +1,19 @@
+LOAD CSV WITH HEADERS FROM "file:///item_categories.csv" AS value
+MERGE (category:Category {id: value.id})
+ON CREATE SET category.name = value.identifier, category.id = value.id;
+
+LOAD CSV WITH HEADERS FROM "file:///items.csv" AS value
+MERGE (item:Item {id: value.id})
+ON CREATE SET item.name = value.identifier, item.id = value.id;
+
+LOAD CSV WITH HEADERS FROM "file:///items.csv" AS value
+MATCH (item:Item {id: value.id}), (category:Category {id: value.category_id}) 
+CREATE (item)-[:HAS_CATEGORY]->(category);
+
+LOAD CSV WITH HEADERS FROM "file:///evolution_triggers.csv" AS value
+MERGE (trigger:Trigger {id: value.id}) 
+ON CREATE SET trigger.name = value.identifier, trigger.id = value.id;
+
 LOAD CSV WITH HEADERS FROM "file:///regions.csv" AS value
 MERGE (region:Region {id: value.id}) 
 ON CREATE SET region.name = value.identifier, region.id = value.id;
@@ -25,6 +41,10 @@ CREATE(evolvesfrom)-[:EVOLVES_TO]->(species);
 LOAD CSV WITH HEADERS FROM "file:///pokemon_species.csv" AS value
 MATCH (species:Species {id: value.id}), (evolvesfrom:Species {id: value.evolves_from_species_id})
 CREATE(species)-[:EVOLVES_FROM]->(evolvesfrom);
+
+LOAD CSV WITH HEADERS FROM "file:///pokemon_evolution.csv" AS value
+MATCH (evolvesfrom:Species)-[evolution:EVOLVES_TO]->(species:Species {id: value.evolved_species_id})
+SET evolution.evolution_trigger_id = value.evolution_trigger_id, evolution.trigger_item_id =  value.trigger_item_id, evolution.minimum_level = value.minimum_level, evolution.time_of_day = value.time_of_day;
 
 LOAD CSV WITH HEADERS FROM "file:///pokemon.csv" AS value
 MERGE (pokemon:Pokemon {id: value.id}) 

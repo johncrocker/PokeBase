@@ -27,7 +27,8 @@ lib.getPokemon = function (pokemon) {
 lib.getPokemonMoves = function (pokemon) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (p:Pokemon)-[:HAS_MOVE]->(m:Move) WHERE p.name = {name} OR p.id = {name} ' +
-            'RETURN m.id AS id, m.name AS name, m.pp AS pp, m.accuracy AS accuracy, m.power AS power', {
+            'RETURN m.id AS id, m.name AS name, m.pp AS pp, m.accuracy AS accuracy, m.power AS power ' +
+            'ORDER BY m.name ASC', {
                 name: pokemon
             }).then(function (result) {
 
@@ -82,7 +83,7 @@ lib.getEvolutions = function (pokemon) {
 
         _.each(rows, function (element) {
             var value = [];
-            
+
             if (element.fromId) {
                 value.push({
                     id: element.fromId,
