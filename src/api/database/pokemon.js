@@ -24,6 +24,91 @@ lib.getPokemon = function (pokemon) {
     });
 };
 
+lib.getPokemonMoves = function (pokemon) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (p:Pokemon)-[:HAS_MOVE]->(m:Move) WHERE p.name = {name} OR p.id = {name} ' +
+            'RETURN m.id AS id, m.name AS name, m.pp AS pp, m.accuracy AS accuracy, m.power AS power', {
+                name: pokemon
+            }).then(function (result) {
+
+            if (hasResults(result)) {
+                resolve(mapRecords(result));
+            } else {
+                reject(createError());
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+};
+
+lib.getEvolutions = function (pokemon) {
+    return new Promise(function (resolve, reject) {
+        db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+            'WHERE ((p.name = {name} OR p.id = {name}) ' +
+            'OR (ef.name = {name} OR ef.id = {name}) ' +
+            'OR (ev.name = {name} OR ev.id = {name})) ' +
+            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen', {
+                name: pokemon
+            }).then(function (data) {
+
+            if (hasResults(data)) {
+                resolve(formatResults(data));
+            } else {
+                db.run('MATCH (p:Species)-[:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+                    'WHERE ((p.name = {name} OR p.id = {name}) ' +
+                    'OR (ev.name = {name} OR ev.id = {name})) ' +
+                    'RETURN p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen', {
+                        name: pokemon
+                    }).then(function (data) {
+
+                    if (hasResults(data)) {
+                        resolve(formatResults(data));
+                    } else {
+                        reject(createError());
+                    }
+                }).catch(function (error) {
+                    reject(createError(error));
+                });
+            }
+        }).catch(function (error) {
+            reject(createError(error));
+        });
+    });
+
+    function formatResults(data) {
+        var rows = mapRecords(data);
+        var result = [];
+
+        _.each(rows, function (element) {
+            var value = [];
+            
+            if (element.fromId) {
+                value.push({
+                    id: element.fromId,
+                    name: element.fromName,
+                    generation: element.fromGen
+                });
+            }
+
+            value.push({
+                id: element.thisId,
+                name: element.thisName
+            });
+
+            value.push({
+                id: element.toId,
+                name: element.toName,
+                generation: element.toGen
+            });
+
+            result.push(value);
+        });
+
+        return result;
+    }
+};
+
 lib.getPokemonTypeEfficacy = function (pokemon) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (p:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type) ' +
@@ -87,16 +172,18 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
         var rows = mapRecords(data);
         var result = [];
         _.each(rows, function (row) {
-            result.push({
+            var record = {
                 id: row.attacker.properties.id,
                 name: row.attacker.properties.name,
                 weight: row.attacker.properties.weight,
                 base_xp: row.attacker.properties.base_xp,
                 height: row.attacker.properties.height,
                 species: row.species,
-                generations: row.generations,
+                generations: _.union(row.generations),
                 effectiveness: row.effectiveness
-            })
+            };
+
+            result.push(record);
         });
 
         return result;
