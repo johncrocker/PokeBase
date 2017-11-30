@@ -1,0 +1,22 @@
+<table class="table table-bordered">
+    <tr>
+        <th>&nbsp;</th>
+        <th>Number</th>
+        <th>Regions</th>
+    </tr>
+    {{#each detail}}
+    <tr>
+        <td>
+            <button class="btn btn-primary btnView" data-number="{{number}}">
+                View
+            </button>
+        </td>
+        <td>
+            <strong>{{number}}</strong>
+        </td>
+        <td>
+            {{region}}
+        </td>
+    </tr>
+    {{/each}}
+</table>

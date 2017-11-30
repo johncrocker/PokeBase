@@ -26,7 +26,7 @@ module.exports = function (grunt) {
     watch: {
       scripts: {
         files: ['routes/*.js', 'templates/*.hbs'],
-        tasks: ['clean', 'handlebars', 'express:dev'],
+        tasks: ['handlebars', 'express:dev'],
         options: {
           spawn: false,
         },

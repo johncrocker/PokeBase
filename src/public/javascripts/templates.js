@@ -1,5 +1,33 @@
 this["JST"] = this["JST"] || {};
 
+this["JST"]["generationdetail"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "<strong>Generation "
+    + alias2(alias1(((stack1 = (depth0 != null ? depth0.generation : depth0)) != null ? stack1.number : stack1), depth0))
+    + "</strong> ("
+    + alias2(alias1(((stack1 = (depth0 != null ? depth0.generation : depth0)) != null ? stack1.region : stack1), depth0))
+    + " region)";
+},"useData":true});
+
+this["JST"]["generationlist"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+
+  return "    <tr>\r\n        <td>\r\n            <button class=\"btn btn-primary btnView\" data-number=\""
+    + alias4(((helper = (helper = helpers.number || (depth0 != null ? depth0.number : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"number","hash":{},"data":data}) : helper)))
+    + "\">\r\n                View\r\n            </button>\r\n        </td>\r\n        <td>\r\n            <strong>"
+    + alias4(((helper = (helper = helpers.number || (depth0 != null ? depth0.number : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"number","hash":{},"data":data}) : helper)))
+    + "</strong>\r\n        </td>\r\n        <td>\r\n            "
+    + alias4(((helper = (helper = helpers.region || (depth0 != null ? depth0.region : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"region","hash":{},"data":data}) : helper)))
+    + "\r\n        </td>\r\n    </tr>\r\n";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<table class=\"table table-bordered\">\r\n    <tr>\r\n        <th>&nbsp;</th>\r\n        <th>Number</th>\r\n        <th>Regions</th>\r\n    </tr>\r\n"
+    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? depth0.detail : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "</table>";
+},"useData":true});
+
 this["JST"]["speciesdetail"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 

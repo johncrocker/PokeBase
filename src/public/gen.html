@@ -68,11 +68,12 @@
     <script src="/javascripts/app.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            var genNumber = jQuery.parseParams().number;
 
-            apiClient.listGenerations()
-                .then(function (gens) {
-                    jQuery("#results").html(JST.generationlist({
-                        detail: gens
+            apiClient.getGeneration(genNumber)
+                .then(function (gen) {
+                    jQuery("#results").html(JST.generationdetail({
+                        generation: gen
                     }));
 
                     jQuery(".btnView").click(function (event) {
