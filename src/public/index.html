@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="pragma" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Poke</title>
 
@@ -52,7 +54,7 @@
             <div class="form-group">
                 <input type="text" data-provide="typeahead" autocomplete="off" id="query">
                 <button id="btnSearch" class="btn btn-primary" type="submit">
-                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <i class="fa fa-hourglass" aria-hidden="true"></i>
                 </button>
             </div>
         </form>
@@ -72,6 +74,49 @@
     <script src="/javascripts/bootstrap3-typeahead.min.js"></script>
     <script src="/javascripts/client.js"></script>
     <script src="/javascripts/app.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            apiClient.listSpecies()
+                .then(function (species) {
+                    var $input = jQuery("#query").typeahead({
+                        source: species
+                    });
+                    jQuery("#btnSearch").unSetWait();
+                }).catch(function (e) {});
+
+            $('#query').keypress(function (event) {
+
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == "13") {
+                    jQuery("#btnSearch").click();
+                    event.stopPropagation();
+                    return false;
+                }
+            });
+
+            jQuery("#btnSearch").click(function (event) {
+                jQuery("#btnSearch").setWait();
+
+                var query = jQuery("#query").typeahead("getActive");
+                var queryText = (query ? query.id : jQuery("#query").val());
+
+                apiClient.getSpecies(queryText)
+                    .then(function (species) {
+                        jQuery("#results").html(JST.speciesdetail({
+                            detail: species
+                        }));
+                        jQuery("#btnSearch").unSetWait();
+                    }).catch(function (e) {
+                        jQuery("#btnSearch").unSetWait();
+                    });
+
+                event.stopPropagation();
+                return false;
+            });
+        });
+    </script>
 </body>
 
 </html>

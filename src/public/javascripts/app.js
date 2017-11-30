@@ -1,21 +1,15 @@
+(function ($) {
+    $.fn.setWait = function () {
+        this.children("i").removeClass("fa-search");
+        this.children("i").addClass("fa-hourglass");
+    };
+
+    $.fn.unSetWait = function () {
+        this.children("i").removeClass("fa-hourglass");
+        this.children("i").addClass("fa-search");
+    };
+}(jQuery));
+
 $(document).ready(function () {
 
-    apiClient.listSpecies()
-        .then(function (species) {
-            var $input = jQuery("#query").typeahead({
-                source: species
-            });
-        }).catch(function (e) {});
-
-    jQuery("#btnSearch").click(function () {
-        // var query = jQuery("#query").val();
-        var query = jQuery("#query").typeahead("getActive");
-        apiClient.getSpecies(query.id)
-            .then(function (species) {
-                jQuery("#results").html(JST.speciesdetail({
-                    detail: species
-                }));
-            }).catch(function (e) {});
-        return false;
-    });
 });
