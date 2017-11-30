@@ -8,7 +8,6 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    clean: ['./public/javascripts/templates.js'],
     handlebars: {
       compile: {
         options: {
@@ -20,7 +19,7 @@ module.exports = function (grunt) {
           namespace: 'JST'
         },
         files: {
-          'public/javascripts/templates.js': ['templates/*.hbs']
+          '../public/javascripts/templates.js': ['templates/*.hbs']
         }
       }
     },
@@ -54,6 +53,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-express-server');
 
-  grunt.registerTask('dev', ['clean', 'handlebars', 'express:dev', 'watch']);
-  grunt.registerTask('prod', ['clean', 'handlebars']);
+  grunt.registerTask('dev', ['handlebars', 'express:dev', 'watch']);
+  grunt.registerTask('prod', ['handlebars']);
 };

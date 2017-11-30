@@ -6,10 +6,10 @@ var lib = {};
 
 lib.getPokemon = function (pokemon) {
     return new Promise(function (resolve, reject) {
-        db.run('MATCH (p:Pokemon)-[:HAS_SPECIES]->(s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) ' +
+        db.run('MATCH (p:Pokemon {pogo: "true"})-[:HAS_SPECIES]->(s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) ' +
             'WHERE p.name = {name} OR p.id = {name}' +
             'WITH p, s, g, r MATCH (p)-[:IS_TYPE]->(t:Type) ' +
-            'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, s.name AS species, g.id AS generationNumber, g.name AS generation, r.name AS region, COLLECT(t.name) AS types', {
+            'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, p.pogo AS isPogo, s.name AS species, g.id AS generationNumber, g.name AS generation, r.name AS region, COLLECT(t.name) AS types', {
                 name: pokemon
             }).then(function (result) {
 
@@ -26,7 +26,7 @@ lib.getPokemon = function (pokemon) {
 
 lib.getPokemonMoves = function (pokemon) {
     return new Promise(function (resolve, reject) {
-        db.run('MATCH (p:Pokemon)-[:HAS_MOVE]->(m:Move) WHERE p.name = {name} OR p.id = {name} ' +
+        db.run('MATCH (p:Pokemon {pogo: "true"})-[:HAS_MOVE]->(m:Move) WHERE p.name = {name} OR p.id = {name} ' +
             'RETURN m.id AS id, m.name AS name, m.pp AS pp, m.accuracy AS accuracy, m.power AS power ' +
             'ORDER BY m.name ASC', {
                 name: pokemon
@@ -223,7 +223,7 @@ lib.getEvolutions = function (pokemon) {
 
 lib.getPokemonTypeEfficacy = function (pokemon) {
     return new Promise(function (resolve, reject) {
-        db.run('MATCH (p:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type) ' +
+        db.run('MATCH (p:Pokemon {pogo: "true"})-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type) ' +
             'WHERE p.name = {pokemon} OR p.id = {pokemon} ' +
             'RETURN defense.name AS defenseType, attack.name AS attackType, efficacy.effectiveness AS effectiveness ORDER BY toFloat(efficacy.effectiveness) DESC', {
                 pokemon: pokemon
@@ -243,7 +243,7 @@ lib.getPokemonTypeEfficacy = function (pokemon) {
 lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
     if (minEffectiveness) {
         return new Promise(function (resolve, reject) {
-            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon)-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
+            db.run('MATCH (defender:Pokemon {pogo: "true"})-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon {pogo: "true"})-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
                 'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) AND toFloat(efficacy.effectiveness) >= {mineffectiveness} ' +
                 'RETURN DISTINCT (attacker) AS attacker, s.name AS species,COLLECT(g.id) AS generations, toFloat(efficacy.effectiveness) AS effectiveness ' +
                 'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
@@ -262,7 +262,7 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
         });
     } else {
         return new Promise(function (resolve, reject) {
-            db.run('MATCH (defender:Pokemon)-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon)-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
+            db.run('MATCH (defender:Pokemon {pogo: "true"})-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon {pogo: "true"})-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
                 'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) ' +
                 'RETURN DISTINCT (attacker) AS attacker, s.name AS species, COLLECT(g.id) AS generations, toFloat(efficacy.effectiveness) AS effectiveness ' +
                 'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
@@ -391,7 +391,7 @@ lib.listUniqueSpecies = function () {
 lib.getSpecies = function (species) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) WHERE s.name = {species} OR s.id = {species} ' +
-            'WITH s,g,r MATCH(p:Pokemon)-[:HAS_SPECIES]->(s) ' +
+            'WITH s,g,r MATCH(p:Pokemon {pogo: "true"})-[:HAS_SPECIES]->(s) ' +
             'WITH s,g,r,p MATCH(p)-[:IS_TYPE]->(t:Type) ' +
             'RETURN s.id AS id, s.name AS name, g.id AS generationNumber, g.name AS generation, r.name AS region, ' +
             'p.id AS pokemon_id, p.name AS pokemon_name, p.weight AS pokemon_weight, p.base_xp AS pokemon_base_xp, p.is_default AS pokemon_is_default, p.height AS pokemon_height, COLLECT(t.name) AS types', {

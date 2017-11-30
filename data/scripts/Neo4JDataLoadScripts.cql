@@ -94,3 +94,4 @@ LOAD CSV WITH HEADERS FROM "file:///pokemon_moves.csv" AS value
 MATCH (pokemon:Pokemon {id: value.pokemon_id}), (move:Move {id: value.move_id}) 
 MERGE(pokemon)-[:HAS_MOVE]->(move);
 
+MATCH(p:Pokemon) WHERE toInt(p.id) <= 900 SET p.pogo = "true"
