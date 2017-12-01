@@ -2,6 +2,7 @@ var Promise = require('bluebird');
 var _ = require('underscore');
 var db = require('./db');
 var log = require('../log');
+var config = require('../config');
 var lib = {};
 
 lib.getPokemon = function (pokemon) {
@@ -241,14 +242,17 @@ lib.getPokemonTypeEfficacy = function (pokemon) {
 };
 
 lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
+    var mostRecentGeneration = (config.get("mostRecentGeneration") ? config.get("mostRecentGeneration") : "7");
+
     if (minEffectiveness) {
         return new Promise(function (resolve, reject) {
             db.run('MATCH (defender:Pokemon {pogo: "true"})-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon {pogo: "true"})-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
-                'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) AND toFloat(efficacy.effectiveness) >= {mineffectiveness} ' +
+                'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) AND toFloat(efficacy.effectiveness) >= {mineffectiveness} AND g.id <= {mostRecentGeneration} ' +
                 'RETURN DISTINCT (attacker) AS attacker, s.name AS species,COLLECT(g.id) AS generations, toFloat(efficacy.effectiveness) AS effectiveness ' +
                 'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
                     pokemon: pokemon,
-                    mineffectiveness: minEffectiveness
+                    mineffectiveness: minEffectiveness,
+                    mostRecentGeneration: mostRecentGeneration
                 }).then(function (result) {
 
                 if (hasResults(result)) {
@@ -263,10 +267,11 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
     } else {
         return new Promise(function (resolve, reject) {
             db.run('MATCH (defender:Pokemon {pogo: "true"})-[:IS_TYPE]->(defense:Type)-[efficacy:EFFICACY]->(attack:Type)<-[:IS_TYPE]-(attacker:Pokemon {pogo: "true"})-[:HAS_SPECIES]-(s:Species)-[:HAS_GENERATION]-(g:Generation) ' +
-                'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) ' +
+                'WHERE (defender.name = {pokemon} OR defender.id = {pokemon}) AND g.id <= {mostRecentGeneration} ' +
                 'RETURN DISTINCT (attacker) AS attacker, s.name AS species, COLLECT(g.id) AS generations, toFloat(efficacy.effectiveness) AS effectiveness ' +
                 'ORDER BY toFloat(efficacy.effectiveness) DESC, attacker ASC', {
-                    pokemon: pokemon
+                    pokemon: pokemon,
+                    mostRecentGeneration: mostRecentGeneration
                 }).then(function (result) {
 
                 if (hasResults(result)) {

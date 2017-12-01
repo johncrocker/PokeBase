@@ -3,5 +3,6 @@
     "dbUsername": "neo4j",
     "dbPassword": "password123",
     "port": 3003,
-    "imagePath": "../../images"
+    "imagePath": "../../images",
+    "mostRecentGeneration": "3"
 }

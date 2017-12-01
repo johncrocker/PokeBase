@@ -1,0 +1,72 @@
+<div class="panel">
+    <div class="row">
+        <div class="col-xs-4">
+            <a href="pogodetail.html?number={{pokemon.id}}">
+                <div class="pogo dex-{{pokemon.id}}"></div>
+            </a>
+        </div>
+        <div class="col-xs-8">
+            <h3> {{pokemon.name}}</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Types</strong>
+        </div>
+        <div class="col-xs-8">
+            {{#each pokemon.types}} {{this}}{{#unless @last}},{{/unless}} {{/each}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Generation</strong>
+        </div>
+        <div class="col-xs-8">
+            {{species.generationNumber}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Region</strong>
+        </div>
+        <div class="col-xs-8">
+            {{species.region}}
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <p class="title">Attacks</p>
+    <table class="table-bordered table-condensed">
+        <tr>
+            <td>Defense</td>
+            {{#each attacks.cols}}
+            <td>{{this}}</td>
+            {{/each}}
+        </tr>
+        {{#each attacks.rows}}
+        <tr>
+            {{#each this}} {{#if bgcolor}}
+            <td style="background-color:{{bgcolor}};color:{{fgcolor}};text-align:center;">{{effectiveness}}%</td>
+            {{else}}
+            <td>{{this}}</td>
+            {{/if}} {{/each}}
+        </tr>
+        {{/each}}
+    </table>
+</div>
+
+<div class="panel">
+    <p class="title">Evolutions</p>
+    {{#each evolutions}}
+    <div class="row">
+        {{#each this}}
+        <div class="col-xs-4">
+            <a href="pogodetail.html?number={{id}}">
+                <div title="{{name}}" class="pogo dex-{{id}}"></div>
+            </a>
+        </div>
+        {{/each}}
+    </div>
+    <hr/> {{/each}}
+</div>
