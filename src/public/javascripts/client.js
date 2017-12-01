@@ -40,6 +40,12 @@ window.apiClient = {
     },
     listGenerationSpecies: function (id) {
         return ajaxGetCall('/api/generation/' + encodeURIComponent(id) + '/species');
+    },
+    listRegions: function () {
+        return ajaxGetCall('/api/regions');
+    },
+    getRegion: function (id) {
+        return ajaxGetCall('/api/region/' + encodeURIComponent(id));
     }
 };
 
