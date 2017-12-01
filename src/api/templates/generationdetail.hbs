@@ -1,1 +1,24 @@
 <strong>Generation {{generation.number}}</strong> ({{generation.region}} region)
+
+<table class="table table-bordered">
+    {{#each pokemon}}
+    <tr>
+        <td>
+            <button class="btn btn-primary btnView" data-number="{{id}}">
+                View
+            </button>
+        </td>
+        <td>
+            <strong>{{id}}</strong>
+        </td>
+        <td>
+            <a href="pogodetail.html?number={{id}}">
+                <div class="pogo dex-{{id}}"></div>
+            </a>
+        </td>
+        <td>
+            {{name}}
+        </td>
+    </tr>
+    {{/each}}
+</table>

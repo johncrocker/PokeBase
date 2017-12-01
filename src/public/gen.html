@@ -15,8 +15,9 @@
         crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/stylesheets/main.css">
+    <link rel="stylesheet" href="/stylesheets/sprite.css">
     <link rel="manifest" href="/manifest.json">
-    
+
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -71,15 +72,14 @@
         $(document).ready(function () {
             var genNumber = jQuery.parseParams().number;
 
-            apiClient.getGeneration(genNumber)
-                .then(function (gen) {
-                    jQuery("#results").html(JST.generationdetail({
-                        generation: gen
-                    }));
+            apiClient.listGenerationSpecies(genNumber)
+                .then(function (generation) {
+                    jQuery("#results").html(JST.generationdetail(generation));
 
                     jQuery(".btnView").click(function (event) {
                         var number = jQuery(this).data("number");
-                        window.location.href = "gen.html?number=" + encodeURIComponent(number);
+                        window.location.href = "pogodetail.html?number=" + encodeURIComponent(
+                            number);
                         event.stopPropagation();
                         return false;
                     });
