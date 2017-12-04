@@ -41,9 +41,8 @@
                 </p>
                 <p>
                     <a href="pogodetail.html?number={{id}}">
-                        <div class="pogo dex-{{id}}"></div>
+                        <div title="{{name}}" class="pogo dex-{{id}}" onclick="window.location.href='pogodetail.html?number={{id}}';"> </div>
                     </a>
-
                 </p>
             </td>
             <td>
@@ -59,6 +58,54 @@
                             <strong>Types:</strong>
                         </div>
                         <div class="col-md-8">{{#each types}} {{this}}{{#unless @last}},{{/unless}} {{/each}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Attack:</strong>
+                        </div>
+                        <div class="col-md-8">{{statAtk}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Defense:</strong>
+                        </div>
+                        <div class="col-md-8">{{statDef}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-md-8">{{statSta}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Candies to Evolve:</strong>
+                        </div>
+                        <div class="col-md-8">{{candyToEvolve}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Buddy Distance:</strong>
+                        </div>
+                        <div class="col-md-8">{{buddyDistance}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Capture Rate:</strong>
+                        </div>
+                        <div class="col-md-8">{{captureRate}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Flee Rate:</strong>
+                        </div>
+                        <div class="col-md-8">{{fleeRate}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Legendary:</strong>
+                        </div>
+                        <div class="col-md-8">{{isLegendary}}</div>
                     </div>
                     <div class="row">
                         <div class="col-md-2">

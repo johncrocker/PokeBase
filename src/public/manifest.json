@@ -1,6 +1,6 @@
 {
-    "short_name": "PokeBase",
-    "name": "Pokemon Pokedex Database",
+    "short_name": "PokeDex",
+    "name": "My Pokemon PokeDex",
     "icons": [{
             "src": "/images/launcher-icon-2x.png",
             "sizes": "96x96",
