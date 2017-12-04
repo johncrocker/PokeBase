@@ -50,6 +50,10 @@ LOAD CSV WITH HEADERS FROM "file:///pokemon.csv" AS value
 MERGE (pokemon:Pokemon {id: value.id}) 
 ON CREATE SET pokemon.name = value.identifier, pokemon.weight = value.weight, pokemon.is_default = value.is_default, pokemon.height = value.height, pokemon.base_xp = value.base_experience, pokemon.id = value.id, pokemon.species_id = value.species_id;
 
+LOAD CSV WITH HEADERS FROM "file:///pokemongo_stats.csv" AS value
+MERGE (p:Pokemon {id: value.id})
+ON MATCH SET p.maxCP = value.maxcp, p.statAtk = value.statatk, p.statDef = value.statdef, p.statSta = value.statsta, p.buddyDistance = value.buddydistance, p.candyToEvolve = value.candytoevolve, p.captureRate = value.capturerate, p.fleeRate = value.fleerate, p.isLegendary = value.legendary, p.raidBossCP  = ["0", value.tier1, value.tier2, value.tier3, value.tier4, value.tier5];
+
 LOAD CSV WITH HEADERS FROM "file:///pokemon.csv" AS value
 MATCH (pokemon:Pokemon {id: value.id}), (species:Species {id: value.species_id})
 CREATE(pokemon)-[:HAS_SPECIES]->(species);
