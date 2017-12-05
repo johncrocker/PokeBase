@@ -13,7 +13,7 @@
         crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
         crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/stylesheets/main.css">
     <link rel="stylesheet" href="/stylesheets/sprite.css">
     <link rel="manifest" href="/manifest.json">
@@ -24,7 +24,7 @@
     <meta name="apple-mobile-web-app-title" content="My Pokemon Pokedex">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    
+
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -80,23 +80,59 @@
     <script type="text/javascript">
         $(document).ready(function () {
             var pogoNumber = jQuery.parseParams().number;
+            var handleNetErr = function (e) {
+                return e
+            };
 
-            apiClient.getSpecies(pogoNumber)
-                .then(function (species) {
-                    apiClient.listPokemonEvolutions(pogoNumber)
-                        .then(function (evolutions) {
-                            apiClient.listPokemonAttackerTypes(pogoNumber)
-                                .then(function (attacks) {
+            Promise.all([
+                apiClient.getSpecies(pogoNumber).then(function (res) {
+                    return {
+                        "type": "species",
+                        "data": res
+                    }
+                }),
+                apiClient.listPokemonEvolutions(pogoNumber).catch(handleNetErr).then(function (res) {
+                    return {
+                        "type": "evolutions",
+                        "data": res
+                    }
+                }),
+                apiClient.listPokemonAttackerTypes(pogoNumber).catch(handleNetErr).then(function (res) {
+                    return {
+                        "type": "attacks",
+                        "data": res
+                    }
+                })
+            ]).then(function (data) {
+                var result = {
+                    species: null,
+                    pokemon: null,
+                    evolutions: null,
+                    attacks: null
+                };
 
-                                    jQuery("#results").html(JST.pogodetail({
-                                        species: species.species,
-                                        pokemon: species.pokemon[0],
-                                        evolutions: evolutions,
-                                        attacks: formatAttacks(attacks)
-                                    }));
-                                }).catch(function (e) {});
-                        }).catch(function (e) {});
-                }).catch(function (e) {});
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    if (row.data.errorThrown == null) {
+                        switch (row.type) {
+                            case "species":
+                                result.species = row.data;
+                                if (row.data.pokemon && row.data.pokemon.length > 0)
+                                    result.pokemon = row.data.pokemon[0];
+                                break;
+                            case "evolutions":
+                                result.evolutions = row.data;
+                                break;
+                            case "attacks":
+                                result.attacks = formatAttacks(row.data);
+                                break;
+                        }
+                    }
+                }
+                jQuery("#results").html(JST.pogodetail(result));
+            }).catch(function (e) {
+                console.log(e);
+            });
 
 
             function formatAttacks(attacks) {
