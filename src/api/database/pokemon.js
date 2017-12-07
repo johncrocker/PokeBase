@@ -11,7 +11,7 @@ lib.getPokemon = function (pokemon) {
             'WHERE p.name = {name} OR p.id = {name}' +
             'WITH p, s, g, r MATCH (p)-[:IS_TYPE]->(t:Type) ' +
             'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, p.pogo AS isPogo, s.name AS species, g.id AS generationNumber, g.name AS generation, r.name AS region, COLLECT(t.name) AS types, ' +
-            'p.statAtk AS statAtk, p.statDef AS statDef, p.statSta AS statSta, p.candyToEvolve AS candyToEvolve, p.captureRate AS captureRate, p.fleeRate AS fleeRate, p.buddyDistance AS buddyDistance, p.isLegendary AS isLegendary, p.raidBossCP AS raidBossCP', {
+            'p.statAtk AS statAtk, p.statDef AS statDef, p.statSta AS statSta, p.candyToEvolve AS candyToEvolve, p.captureRate AS captureRate, p.fleeRate AS fleeRate, p.buddyDistance AS buddyDistance, p.isLegendary AS isLegendary, p.maxCP AS maxCP, p.raidBossCP AS raidBossCP', {
                 name: pokemon
             }).then(function (result) {
 
@@ -401,7 +401,7 @@ lib.getSpecies = function (species) {
             'WITH s,g,r,p MATCH(p)-[:IS_TYPE]->(t:Type) ' +
             'RETURN s.id AS id, s.name AS name, g.id AS generationNumber, g.name AS generation, r.name AS region, ' +
             'p.id AS pokemon_id, p.name AS pokemon_name, p.weight AS pokemon_weight, p.base_xp AS pokemon_base_xp, p.is_default AS pokemon_is_default, p.height AS pokemon_height, COLLECT(t.name) AS types, ' +
-            'p.statAtk AS statAtk, p.statDef AS statDef, p.statSta AS statSta, p.candyToEvolve AS candyToEvolve, p.captureRate AS captureRate, p.fleeRate AS fleeRate, p.buddyDistance AS buddyDistance, p.isLegendary AS isLegendary, p.raidBossCP AS raidBossCP', {
+            'p.statAtk AS statAtk, p.statDef AS statDef, p.statSta AS statSta, p.candyToEvolve AS candyToEvolve, p.captureRate AS captureRate, p.fleeRate AS fleeRate, p.buddyDistance AS buddyDistance, p.isLegendary AS isLegendary, p.maxCP AS maxCP, p.raidBossCP AS raidBossCP', {
                 species: species
             }).then(function (data) {
 
@@ -438,7 +438,8 @@ lib.getSpecies = function (species) {
                     fleeRate: element.fleeRate,
                     buddyDistance: element.buddyDistance,
                     isLegendary: element.isLegendary,
-                    raidBossCP: element.raidBossCP
+                    raidBossCP: element.raidBossCP,
+                    maxCP: element.maxCP
                 });
             });
             resolve(result);
