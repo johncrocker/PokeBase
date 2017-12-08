@@ -1,27 +1,29 @@
 var Promise = require('bluebird');
+var views = require('./views');
 var _ = require('underscore');
 var db = require('./db');
 var log = require('../log');
 var config = require('../config');
 var lib = {};
 
+
 lib.getPokemon = function (pokemon) {
     return new Promise(function (resolve, reject) {
         db.run('MATCH (p:Pokemon {pogo: "true"})-[:HAS_SPECIES]->(s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) ' +
             'WHERE p.name = {name} OR p.id = {name}' +
             'WITH p, s, g, r MATCH (p)-[:IS_TYPE]->(t:Type) ' +
-            'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, p.pogo AS isPogo, s.name AS species, g.id AS generationNumber, g.name AS generation, r.name AS region, COLLECT(t.name) AS types, ' +
+            'RETURN p.id AS id, p.name AS name, p.weight AS weight, p.base_xp AS base_xp, p.is_default AS is_default, p.height AS height, p.pogo AS isPogo, p.CPPerLevel AS CPPerLevel, s.name AS species, g.id AS generationNumber, g.name AS generation, r.name AS region, COLLECT(t.name) AS types, ' +
             'p.statAtk AS statAtk, p.statDef AS statDef, p.statSta AS statSta, p.candyToEvolve AS candyToEvolve, p.captureRate AS captureRate, p.fleeRate AS fleeRate, p.buddyDistance AS buddyDistance, p.isLegendary AS isLegendary, p.maxCP AS maxCP, p.raidBossCP AS raidBossCP', {
                 name: pokemon
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(_.first(mapRecords(result)));
+            if (views.hasResults(result)) {
+                resolve(_.first(views.getPokemon(result)));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -34,13 +36,13 @@ lib.getPokemonMoves = function (pokemon) {
                 name: pokemon
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.getPokemonMoves(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -50,13 +52,13 @@ lib.listRegions = function () {
         db.run('MATCH (r:Region)<-[:HAS_REGION]-(g:Generation) ' +
             'RETURN r.id AS id, r.name AS name, COLLECT(g.id) AS generationNumber', {}).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.listRegions(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -67,13 +69,13 @@ lib.listEvolutionTriggers = function () {
             'RETURN t.id AS id, t.name AS name ' +
             'ORDER BY t.id', {}).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.listEvolutionTriggers(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -87,13 +89,13 @@ lib.getEvolutionTrigger = function (evolution_trigger_id, trigger_item_id) {
                 itemId: trigger_item_id
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.getEvolutionTrigger(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -103,13 +105,13 @@ lib.listItems = function () {
         db.run('MATCH (i:Item)-[:HAS_CATEGORY]-(c:Category) ' +
             'RETURN i.id AS id, i.name AS name, c.id AS categoryId, c.name as categoryName', {}).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.listItems(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -122,13 +124,13 @@ lib.getRegion = function (id) {
                 name: id
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.getRegion(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -141,13 +143,13 @@ lib.getRegionSpecies = function (id) {
                 name: id
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.getRegionSpecies(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -162,8 +164,8 @@ lib.getEvolutions = function (pokemon) {
                 name: pokemon
             }).then(function (data) {
 
-            if (hasResults(data)) {
-                resolve(formatResults(data));
+            if (views.hasResults(data)) {
+                resolve(views.getEvolutions(data));
             } else {
                 db.run('MATCH (p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
                     'WHERE ((p.name = {name} OR p.id = {name}) ' +
@@ -172,55 +174,20 @@ lib.getEvolutions = function (pokemon) {
                         name: pokemon
                     }).then(function (data) {
 
-                    if (hasResults(data)) {
-                        resolve(formatResults(data));
+                    if (views.hasResults(data)) {
+                        resolve(views.getEvolutions(data));
                     } else {
-                        reject(createError());
+                        reject(views.createError());
                     }
                 }).catch(function (error) {
-                    reject(createError(error));
+                    reject(views.createError(error));
                 });
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 
-    function formatResults(data) {
-        var rows = mapRecords(data);
-        var result = [];
-
-        _.each(rows, function (element) {
-            var value = [];
-
-            if (element.fromId) {
-                value.push({
-                    id: element.fromId,
-                    name: element.fromName,
-                    generation: element.fromGen
-                });
-            }
-
-            value.push({
-                id: element.thisId,
-                name: element.thisName
-            });
-
-            value.push({
-                id: element.toId,
-                name: element.toName,
-                generation: element.toGen,
-                evolution_trigger_id: element.evolution_trigger_id,
-                trigger_item_id: element.trigger_item_id,
-                minimum_level: element.minimum_level,
-                time_of_day: element.time_of_day
-            });
-
-            result.push(value);
-        });
-
-        return result;
-    }
 };
 
 lib.getPokemonTypeEfficacy = function (pokemon) {
@@ -231,13 +198,13 @@ lib.getPokemonTypeEfficacy = function (pokemon) {
                 pokemon: pokemon
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.getPokemonTypeEfficacy(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -256,13 +223,13 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
                     mostRecentGeneration: mostRecentGeneration
                 }).then(function (result) {
 
-                if (hasResults(result)) {
-                    resolve(formatResults(result));
+                if (views.hasResults(result)) {
+                    resolve(views.getEffectivePokemon(result));
                 } else {
-                    reject(createError());
+                    reject(views.createError());
                 }
             }).catch(function (error) {
-                reject(createError(error));
+                reject(views.createError(error));
             });
         });
     } else {
@@ -275,37 +242,17 @@ lib.getEffectivePokemon = function (pokemon, minEffectiveness) {
                     mostRecentGeneration: mostRecentGeneration
                 }).then(function (result) {
 
-                if (hasResults(result)) {
-                    resolve(formatResults(result));
+                if (views.hasResults(result)) {
+                    resolve(views.getEffectivePokemon(result));
                 } else {
-                    reject(createError());
+                    reject(views.createError());
                 }
             }).catch(function (error) {
-                reject(createError(error));
+                reject(views.createError(error));
             });
         });
     }
 
-    function formatResults(data) {
-        var rows = mapRecords(data);
-        var result = [];
-        _.each(rows, function (row) {
-            var record = {
-                id: row.attacker.properties.id,
-                name: row.attacker.properties.name,
-                weight: row.attacker.properties.weight,
-                base_xp: row.attacker.properties.base_xp,
-                height: row.attacker.properties.height,
-                species: row.species,
-                generations: _.union(row.generations),
-                effectiveness: row.effectiveness
-            };
-
-            result.push(record);
-        });
-
-        return result;
-    }
 };
 
 lib.getTypeEfficacy = function (type) {
@@ -316,13 +263,13 @@ lib.getTypeEfficacy = function (type) {
                 type: type
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.getTypeEfficacy(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -335,13 +282,13 @@ lib.getGeneration = function (generation) {
                 id: generation
             }).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(_.first(mapRecords(result)));
+            if (views.hasResults(result)) {
+                resolve(_.first(views.getGeneration(result)));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -351,13 +298,13 @@ lib.listGenerations = function () {
         db.run('MATCH (g:Generation)-[:HAS_REGION]->(r:Region) ' +
             'RETURN g.id AS number, g.name AS name, r.name AS region ORDER BY toInt(g.id) ASC', {}).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.listGenerations(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -367,13 +314,13 @@ lib.listSpecies = function () {
         db.run('MATCH (s:Species)-[:HAS_GENERATION]->(g:Generation)-[:HAS_REGION]->(r:Region) ' +
             'RETURN s.id AS id, s.name AS name, g.id AS generationNumber, g.name AS generation, r.name AS region ORDER BY toInt(s.id) ASC', {}).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.listSpecies(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -383,13 +330,13 @@ lib.listUniqueSpecies = function () {
         db.run('MATCH (s:Species) ' +
             'RETURN s.id AS id, s.name AS name ORDER BY toInt(s.id) ASC', {}).then(function (result) {
 
-            if (hasResults(result)) {
-                resolve(mapRecords(result));
+            if (views.hasResults(result)) {
+                resolve(views.listUniqueSpecies(result));
             } else {
-                reject(createError());
+                reject(views.createError());
             }
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -400,51 +347,20 @@ lib.getSpecies = function (species) {
             'WITH s,g,r MATCH(p:Pokemon {pogo: "true"})-[:HAS_SPECIES]->(s) ' +
             'WITH s,g,r,p MATCH(p)-[:IS_TYPE]->(t:Type) ' +
             'RETURN s.id AS id, s.name AS name, g.id AS generationNumber, g.name AS generation, r.name AS region, ' +
-            'p.id AS pokemon_id, p.name AS pokemon_name, p.weight AS pokemon_weight, p.base_xp AS pokemon_base_xp, p.is_default AS pokemon_is_default, p.height AS pokemon_height, COLLECT(t.name) AS types, ' +
+            'p.id AS pokemon_id, p.name AS pokemon_name, p.weight AS pokemon_weight, p.base_xp AS pokemon_base_xp, p.is_default AS pokemon_is_default, p.height AS pokemon_height, p.CPPerLevel AS CPPerLevel, COLLECT(t.name) AS types, ' +
             'p.statAtk AS statAtk, p.statDef AS statDef, p.statSta AS statSta, p.candyToEvolve AS candyToEvolve, p.captureRate AS captureRate, p.fleeRate AS fleeRate, p.buddyDistance AS buddyDistance, p.isLegendary AS isLegendary, p.maxCP AS maxCP, p.raidBossCP AS raidBossCP', {
                 species: species
             }).then(function (data) {
 
-            if (!hasResults(data)) {
-                reject(createError());
+            if (!views.hasResults(data)) {
+                reject(views.createError());
                 return;
             }
-            var rows = mapRecords(data);
-            var result = {
-                species: {
-                    id: rows[0].id,
-                    name: rows[0].name,
-                    generationNumber: rows[0].generationNumber,
-                    generation: rows[0].generation,
-                    region: rows[0].region
-                },
-                pokemon: []
-            };
 
-            _.each(rows, function (element) {
-                result.pokemon.push({
-                    id: element.pokemon_id,
-                    name: element.pokemon_name,
-                    weight: element.pokemon_weight,
-                    base_xp: element.pokemon_base_xp,
-                    is_default: element.pokemon_is_default,
-                    height: element.pokemon_height,
-                    types: element.types,
-                    statAtk: element.statAtk,
-                    statDef: element.statDef,
-                    statSta: element.statSta,
-                    candyToEvolve: element.candyToEvolve,
-                    captureRate: element.captureRate,
-                    fleeRate: element.fleeRate,
-                    buddyDistance: element.buddyDistance,
-                    isLegendary: element.isLegendary,
-                    raidBossCP: element.raidBossCP,
-                    maxCP: element.maxCP
-                });
-            });
-            resolve(result);
+
+            resolve(views.getSpecies(data));
         }).catch(function (error) {
-            reject(createError(error));
+            reject(views.createError(error));
         });
     });
 };
@@ -460,80 +376,20 @@ lib.getGenerationSpecies = function (generation) {
                         id: generation
                     }).then(function (data) {
 
-                    if (!hasResults(data)) {
-                        reject(createError());
+                    if (!views.hasResults(data)) {
+                        reject(views.createError());
                         return;
                     }
 
-                    var rows = mapRecords(data);
-
-                    var result = {
-                        generation: generationResult,
-                        pokemon: []
-                    };
-
-                    _.each(rows, function (element) {
-                        result.pokemon.push({
-                            id: element.id,
-                            name: element.pokemon
-                        });
-                    });
-                    resolve(result);
+                    resolve(views.getGenerationSpecies(data));
                 }).catch(function (error) {
-                    reject(createError(error));
+                    reject(views.createError(error));
                 });
             }).catch(function (error) {
-                reject(createError(error));
+                reject(views.createError(error));
             });
     });
 
 };
-
-function createError(e) {
-    if (e) {
-        return {
-            status: 500,
-            error: e
-        };
-    }
-
-    return {
-        status: 404,
-        error: "Not found"
-    };
-}
-
-function hasResults(result) {
-    if (result == null) {
-        return false;
-    }
-
-    if ((result.records == null) || (result.records.length == 0)) {
-        return false;
-    }
-
-    return true;
-}
-
-function mapRecords(result) {
-    var mappedResult = [];
-
-    if (result == null) {
-        return null;
-    }
-
-    result.records.forEach(function (record) {
-        var mappedRecord = {};
-        record.keys.forEach(function (key) {
-            mappedRecord[key] = record.get(key);
-        });
-        mappedResult.push(mappedRecord);
-    });
-
-    if (mappedResult.length == 0) {
-        return null;
-    }
-    return mappedResult;
-}
 
 module.exports = lib;
