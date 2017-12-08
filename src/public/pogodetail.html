@@ -116,7 +116,7 @@
                     if (row.data.errorThrown == null) {
                         switch (row.type) {
                             case "species":
-                                result.species = row.data;
+                                result.species = row.data.species;
                                 if (row.data.pokemon && row.data.pokemon.length > 0)
                                     result.pokemon = row.data.pokemon[0];
                                 break;

@@ -1,53 +1,82 @@
-@-ms-viewport {
-    width: device-width;
-}
+    @-ms-viewport {
+        width: device-width;
+    }
 
-@-o-viewport {
-    width: device-width;
-}
+    @-o-viewport {
+        width: device-width;
+    }
 
-@viewport {
-    width: device-width;
-}
+    @viewport {
+        width: device-width;
+    }
 
-body {
-    padding-top: 60px;
-}
+    body {
+        padding-top: 60px;
+    }
 
-.panel {
-    margin-right: 0;
-    margin-left: 0;
-    background-color: #fff;
-    border-color: #ddd;
-    border-width: 1px;
-    border-radius: 4px 4px 0 0;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    padding: 2px;
-    font-size: 12px;
-}
+    .panel {
+        margin-right: 0;
+        margin-left: 0;
+        background-color: #fff;
+        border-color: #ddd;
+        border-width: 1px;
+        border-radius: 4px 4px 0 0;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        padding: 2px;
+        font-size: 12px;
+    }
 
-.panel .title {
-    margin-left: 5px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #959595;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
+    .panel .title {
+        margin-left: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #959595;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-.table-compact {
-    padding: 0px !important;
-}
+    .table-compact {
+        padding: 0px !important;
+    }
 
-.table-compact>th {
-    padding: 0px !important;
-}
+    .table-compact>th {
+        padding: 0px !important;
+    }
 
-.rotate {
-    -webkit-transform: rotate(-90deg);
-    -moz-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg);
-    -o-transform: rotate(-90deg);
-    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-}
+    .rotate {
+        -webkit-transform: rotate(-90deg);
+        -moz-transform: rotate(-90deg);
+        -ms-transform: rotate(-90deg);
+        -o-transform: rotate(-90deg);
+        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    }
+
+    .fa-4 {
+        font-size: 3em;
+    }
+
+    .grey {
+        color: #eeeeee;
+    }
+
+    .hand {
+        cursor: pointer;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        /* display: none; <- Crashes Chrome on hover */
+        -webkit-appearance: none;
+        margin: 0;
+        /* <-- Apparently some margin are still there even though it's hidden */
+    }
+
+    input[type='number'] {
+        -moz-appearance:textfield;
+    }
+    
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
