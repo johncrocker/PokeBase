@@ -193,7 +193,7 @@ lib.getGenerationSpecies = function (data) {
     var rows = mapRecords(data);
 
     var result = {
-        generation: row,
+        generation: rows,
         pokemon: []
     };
 
