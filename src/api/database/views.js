@@ -90,7 +90,8 @@ lib.getEvolutions = function (data) {
 
         value.push({
             id: element.thisId,
-            name: element.thisName
+            name: element.thisName,
+            generation: element.fromGen
         });
 
         value.push({
