@@ -1,14 +1,14 @@
 var _ = require('underscore');
 var express = require('express');
 var router = express.Router();
-var pokemonDb = require('../database/pokemon');
+var pokemonDbReader = require('../database/pokemonreader');
 var log = require('../log');
 var config = require('../config');
 var image = require('../lib/image');
 
 router.get('/:name', function (req, res, next) {
 
-  pokemonDb.getPokemon(req.params.name)
+  pokemonDbReader.getPokemon(req.params.name)
     .then(function (pokemon) {
       res.status(200).send(pokemon);
     }).catch(function (e) {
@@ -19,7 +19,7 @@ router.get('/:name', function (req, res, next) {
 
 router.get('/:name/attacks', function (req, res, next) {
 
-  pokemonDb.getPokemonTypeEfficacy(req.params.name)
+  pokemonDbReader.getPokemonTypeEfficacy(req.params.name)
     .then(function (pokemon) {
       res.status(200).send(pokemon);
     }).catch(function (e) {
@@ -30,7 +30,7 @@ router.get('/:name/attacks', function (req, res, next) {
 
 router.get('/:name/moves', function (req, res, next) {
 
-  pokemonDb.getPokemonMoves(req.params.name)
+  pokemonDbReader.getPokemonMoves(req.params.name)
     .then(function (pokemon) {
       res.status(200).send(pokemon);
     }).catch(function (e) {
@@ -43,7 +43,7 @@ router.get('/:name/attackers', function (req, res, next) {
   var effectiveness = (req.query.effectiveness ? parseInt(req.query.effectiveness) : 0);
   var limit = (req.query.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER);
 
-  pokemonDb.getEffectivePokemon(req.params.name, effectiveness)
+  pokemonDbReader.getEffectivePokemon(req.params.name, effectiveness)
     .then(function (pokemon) {
       res.status(200).send(pokemon.slice(0, limit));
     }).catch(function (e) {
@@ -54,7 +54,7 @@ router.get('/:name/attackers', function (req, res, next) {
 
 router.get('/:name/evolutions', function (req, res, next) {
 
-  pokemonDb.getEvolutions(req.params.name)
+  pokemonDbReader.getEvolutions(req.params.name)
     .then(function (evolutions) {
       res.status(200).send(evolutions);
     }).catch(function (e) {
@@ -66,7 +66,7 @@ router.get('/:name/evolutions', function (req, res, next) {
 router.get('/:name/image', function (req, res, next) {
   var size = (req.query.size ? parseInt(req.query.size) : 0);
 
-  pokemonDb.getPokemon(req.params.name)
+  pokemonDbReader.getPokemon(req.params.name)
     .then(function (pokemon) {
       image.downloadImage(pad(pokemon.id, 3) + '.png', res, size);
     }).catch(function (e) {
