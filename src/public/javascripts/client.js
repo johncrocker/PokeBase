@@ -38,6 +38,15 @@ window.apiClient = {
     getGeneration: function (id) {
         return ajaxGetCall('/api/generation/' + encodeURIComponent(id));
     },
+    listGenerationEvolutions: function (id) {
+        return ajaxGetCall('/api/generation/' + encodeURIComponent(id) + '/evolutions');
+    },
+    listGenerationInsideEvolutions: function (id) {
+        return ajaxGetCall('/api/generation/' + encodeURIComponent(id) + '/evolutions/inside');
+    },
+    listGenerationOutsideEvolutions: function (id) {
+        return ajaxGetCall('/api/generation/' + encodeURIComponent(id) + '/evolutions/outside');
+    },
     listGenerationSpecies: function (id) {
         return ajaxGetCall('/api/generation/' + encodeURIComponent(id) + '/species');
     },

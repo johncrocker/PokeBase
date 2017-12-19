@@ -190,7 +190,50 @@ lib.getEvolutions = function (pokemon) {
 
 };
 
-lib.getEvolutionsOutsideGen = function (genNumber) {
+lib.getGenerationEvolutions = function (genNumber) {
+    return new Promise(function (resolve, reject) {
+        var promises = [];
+
+        promises.push(db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+            'WHERE (efg.id = {gen}) ' +
+            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+                gen: genNumber
+            }));
+
+        promises.push(db.run('MATCH (eff:Generation)-[:HAS_GENERATION]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
+            'WHERE (eff.id = {gen}) ' +
+            'RETURN eff.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+                gen: genNumber
+            }));
+
+        Promise.all(promises.map(function (promise) {
+            return promise.reflect();
+        })).then(function (promiseResults) {
+            var result = [];
+
+            _.each(promiseResults, function (promise) {
+                if (promise.isFulfilled()) {
+                    var data = promise.value();
+
+                    if (views.hasResults(data)) {
+                        result = result.concat(views.getEvolutions(data));
+                    }
+                }
+            });
+
+            if (result.length == 0) {
+                reject(views.createError());
+            } else {
+                resolve(result);
+            }
+        }).catch().catch(function (error) {
+            reject(views.createError(error));
+        });
+    });
+
+};
+
+lib.getEvolutionsOutsideGeneration = function (genNumber) {
     return new Promise(function (resolve, reject) {
         var promises = [];
 
@@ -234,7 +277,7 @@ lib.getEvolutionsOutsideGen = function (genNumber) {
 };
 
 
-lib.getEvolutionsInsideGen = function (genNumber) {
+lib.getEvolutionsInsideGeneration = function (genNumber) {
     return new Promise(function (resolve, reject) {
         var promises = [];
 

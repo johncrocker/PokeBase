@@ -78,26 +78,11 @@
     <script src="/javascripts/app.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            var genNumber = jQuery.parseParams().number;
 
-            apiClient.listGenerations()
-                .then(function (gens) {
-                    jQuery("#results").html(JST.generationlist({
-                        detail: gens
-                    }));
-
-                    jQuery(".btnView").click(function (event) {
-                        var number = jQuery(this).data("number");
-                        window.location.href = "gen.html?number=" + encodeURIComponent(number);
-                        event.stopPropagation();
-                        return false;
-                    });
-
-                    jQuery(".btnEvol").click(function (event) {
-                        var number = jQuery(this).data("number");
-                        window.location.href = "evolutions.html?number=" + encodeURIComponent(number);
-                        event.stopPropagation();
-                        return false;
-                    });
+            apiClient.listGenerationEvolutions(genNumber)
+                .then(function (evolutions) {
+                    jQuery("#results").html(JST.generationevolutiondetail(evolutions));
                 }).catch(function (e) {});
 
         });
