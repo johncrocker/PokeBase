@@ -43,7 +43,9 @@ this["JST"]["generationevolutiondetail"] = Handlebars.template({"1":function(con
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
     + "\" class=\"pogo dex-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\"></div>\r\n                </a>\r\n            </td>\r\n"
+    + "\"></div>\r\n                    <small>"
+    + alias4(((helper = (helper = helpers.generation || (depth0 != null ? depth0.generation : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"generation","hash":{},"data":data}) : helper)))
+    + "</small>\r\n                </a>\r\n            </td>\r\n"
     + ((stack1 = helpers.unless.call(alias1,(data && data.last),{"name":"unless","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + " ";
 },"3":function(container,depth0,helpers,partials,data) {
@@ -61,9 +63,9 @@ this["JST"]["generationlist"] = Handlebars.template({"1":function(container,dept
 
   return "    <tr>\r\n        <td>\r\n            <button class=\"btn btn-primary btnView\" data-number=\""
     + alias4(((helper = (helper = helpers.number || (depth0 != null ? depth0.number : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"number","hash":{},"data":data}) : helper)))
-    + "\">\r\n                <i class=\"fa fa-eye\" aria-hidden=\"true\"></i> View\r\n            </button>\r\n            <button class=\"btn btn-primary btnEvol\" data-number=\""
+    + "\">\r\n                <i class=\"fa fa-eye\" aria-hidden=\"true\" title=\"View Pokemon\"></i>\r\n            </button>\r\n            <button class=\"btn btn-primary btnEvol\" data-number=\""
     + alias4(((helper = (helper = helpers.number || (depth0 != null ? depth0.number : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"number","hash":{},"data":data}) : helper)))
-    + "\">\r\n                <i class=\"fa fa-arrow-right\" aria-hidden=\"true\"></i> Evolutions\r\n            </button>\r\n        </td>\r\n        <td>\r\n            <strong>"
+    + "\">\r\n                <i class=\"fa fa-arrow-right\" aria-hidden=\"true\" title=\"View Evolutions\"></i>\r\n            </button>\r\n        </td>\r\n        <td>\r\n            <strong>"
     + alias4(((helper = (helper = helpers.number || (depth0 != null ? depth0.number : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"number","hash":{},"data":data}) : helper)))
     + "</strong>\r\n        </td>\r\n        <td>\r\n            "
     + alias4(((helper = (helper = helpers.region || (depth0 != null ? depth0.region : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"region","hash":{},"data":data}) : helper)))
@@ -132,7 +134,9 @@ this["JST"]["pogodetail"] = Handlebars.template({"1":function(container,depth0,h
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
     + "\" class=\"pogo dex-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\"></div>\r\n                </a>\r\n            </td>\r\n"
+    + "\"></div>\r\n                    <small>"
+    + alias4(((helper = (helper = helpers.generation || (depth0 != null ? depth0.generation : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"generation","hash":{},"data":data}) : helper)))
+    + "</small>\r\n                </a>\r\n            </td>\r\n"
     + ((stack1 = helpers.unless.call(alias1,(data && data.last),{"name":"unless","hash":{},"fn":container.program(14, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + " ";
 },"14":function(container,depth0,helpers,partials,data) {

@@ -91,7 +91,7 @@ lib.getEvolutions = function (data) {
         value.push({
             id: element.thisId,
             name: element.thisName,
-            generation: element.fromGen
+            generation: element.thisGen
         });
 
         value.push({
@@ -107,7 +107,10 @@ lib.getEvolutions = function (data) {
         result.push(value);
     });
 
-    return result;
+    return result.sort(function (a, b) {
+        return (parseInt(a[0].id) - parseInt(b[0].id));
+    });
+
 };
 
 lib.getEffectivePokemon = function (data) {
