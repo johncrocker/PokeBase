@@ -160,7 +160,9 @@ lib.getEvolutions = function (pokemon) {
             'WHERE ((p.name = {name} OR p.id = {name}) ' +
             'OR (ef.name = {name} OR ef.id = {name}) ' +
             'OR (ev.name = {name} OR ev.id = {name})) ' +
-            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'WITH efg, ef, p, ev, evg, path ' +
+            'MATCH (pfg:Generation)<-[:HAS_GENERATION]-(p) ' +
+            'RETURN pfg.id as thisGen, ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 name: pokemon
             }).then(function (data) {
 
@@ -170,7 +172,7 @@ lib.getEvolutions = function (pokemon) {
                 db.run('MATCH (eff:Generation)-[:HAS_GENERATION]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
                     'WHERE ((p.name = {name} OR p.id = {name}) ' +
                     'OR (ev.name = {name} OR ev.id = {name})) ' +
-                    'RETURN eff.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+                    'RETURN eff.id AS thisGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                         name: pokemon
                     }).then(function (data) {
 
@@ -195,14 +197,16 @@ lib.getGenerationEvolutions = function (genNumber) {
         var promises = [];
 
         promises.push(db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
-            'WHERE (efg.id = {gen}) ' +
-            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'WITH efg, ef, p, ev, evg, path ' +
+            'MATCH (pfg:Generation)<-[:HAS_GENERATION]-(p) ' +
+            'WHERE (pfg.id = {gen} OR efg.id = {gen} OR evg.id = {gen}) '+
+            'RETURN pfg.id as thisGen, ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 gen: genNumber
             }));
 
         promises.push(db.run('MATCH (eff:Generation)-[:HAS_GENERATION]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE (eff.id = {gen}) ' +
-            'RETURN eff.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'RETURN eff.id AS thisGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 gen: genNumber
             }));
 
@@ -239,13 +243,16 @@ lib.getEvolutionsOutsideGeneration = function (genNumber) {
 
         promises.push(db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE (efg.id = {gen} AND evg.id <> {gen}) ' +
-            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'WITH efg, ef, p, ev, evg, path ' +
+            'MATCH (pfg:Generation)<-[:HAS_GENERATION]-(p) ' +
+            'WHERE (pfg.id = {gen}) '+
+            'RETURN pfg.id as thisGen, ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 gen: genNumber
             }));
 
         promises.push(db.run('MATCH (eff:Generation)-[:HAS_GENERATION]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE (eff.id = {gen} AND evg.id <> {gen}) ' +
-            'RETURN eff.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'RETURN eff.id AS thisGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 gen: genNumber
             }));
 
@@ -283,13 +290,16 @@ lib.getEvolutionsInsideGeneration = function (genNumber) {
 
         promises.push(db.run('MATCH (efg:Generation)-[:HAS_GENERATION]-(ef:Species)<-[:EVOLVES_FROM]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE (efg.id = {gen} AND evg.id = {gen}) ' +
-            'RETURN ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'WITH efg, ef, p, ev, evg, path ' +
+            'MATCH (pfg:Generation)<-[:HAS_GENERATION]-(p) ' +
+            'WHERE (pfg.id = {gen}) '+
+            'RETURN pfg.id as thisGen, ef.id AS fromId, ef.name AS fromName, efg.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 gen: genNumber
             }));
 
         promises.push(db.run('MATCH (eff:Generation)-[:HAS_GENERATION]-(p:Species)-[path:EVOLVES_TO]->(ev:Species)-[:HAS_GENERATION]-(evg:Generation) ' +
             'WHERE (eff.id = {gen} AND evg.id = {gen}) ' +
-            'RETURN eff.id AS fromGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
+            'RETURN eff.id AS thisGen, p.id AS thisId, p.name AS thisName, ev.id AS toId, ev.name AS toName, evg.id AS toGen, path.evolution_trigger_id AS evolution_trigger_id, path.trigger_item_id AS trigger_item_id, path.minimum_level AS minimum_level, path.time_of_day AS time_of_day', {
                 gen: genNumber
             }));
 
