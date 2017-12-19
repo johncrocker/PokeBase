@@ -27,26 +27,37 @@ router.get('/:number/species', function (req, res, next) {
     });
 });
 
-router.get('/:number/evolutions/outside', function (req, res, next) {
+router.get('/:number/evolutions', function (req, res, next) {
 
-  pokemonDb.getEvolutionsOutsideGen(req.params.number)
+  pokemonDb.getGenerationEvolutions(req.params.number)
     .then(function (evolutions) {
       res.status(200).send(evolutions);
     }).catch(function (e) {
-      log.info('Error in Get Pokemon Evolutions', e);
+      log.info('Error in Get Generation Evolutions', e);
+      res.status(e.status).send(e);
+    });
+});
+
+router.get('/:number/evolutions/outside', function (req, res, next) {
+
+  pokemonDb.getEvolutionsOutsideGeneration(req.params.number)
+    .then(function (evolutions) {
+      res.status(200).send(evolutions);
+    }).catch(function (e) {
+      log.info('Error in Get Evolutions Outside Generation', e);
       res.status(e.status).send(e);
     });
 });
 
 router.get('/:number/evolutions/inside', function (req, res, next) {
-  
-    pokemonDb.getEvolutionsInsideGen(req.params.number)
-      .then(function (evolutions) {
-        res.status(200).send(evolutions);
-      }).catch(function (e) {
-        log.info('Error in Get Pokemon Evolutions', e);
-        res.status(e.status).send(e);
-      });
-  });
+
+  pokemonDb.getEvolutionsInsideGeneration(req.params.number)
+    .then(function (evolutions) {
+      res.status(200).send(evolutions);
+    }).catch(function (e) {
+      log.info('Error in Get Evolutions Inside Generation', e);
+      res.status(e.status).send(e);
+    });
+});
 
 module.exports = router;
