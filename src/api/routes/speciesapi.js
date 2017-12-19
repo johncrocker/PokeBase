@@ -1,12 +1,12 @@
 var _ = require('underscore');
 var express = require('express');
 var router = express.Router();
-var pokemonDb = require('../database/pokemon');
+var pokemonDbReader = require('../database/pokemonreader');
 var log = require('../log');
 
 router.get('/all', function (req, res, next) {
 
-  pokemonDb.listSpecies()
+  pokemonDbReader.listSpecies()
     .then(function (species) {
       res.status(200)
         .send(species);
@@ -18,7 +18,7 @@ router.get('/all', function (req, res, next) {
 
 router.get('/list', function (req, res, next) {
 
-  pokemonDb.listUniqueSpecies()
+  pokemonDbReader.listUniqueSpecies()
     .then(function (species) {
       var result = [];
       _.each(species, function (element) {
@@ -36,7 +36,7 @@ router.get('/list', function (req, res, next) {
 
 router.get('/:species', function (req, res, next) {
 
-  pokemonDb.getSpecies(req.params.species)
+  pokemonDbReader.getSpecies(req.params.species)
     .then(function (species) {
       res.status(200)
         .send(species);

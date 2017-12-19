@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var pokemonDb = require('../database/pokemon');
+var pokemonDbReader = require('../database/pokemonreader');
 var log = require('../log');
  
 router.get('/:number', function (req, res, next) {
   
-  pokemonDb.getRegion(req.params.number)
+  pokemonDbReader.getRegion(req.params.number)
     .then(function (generation) {
       res.status(200)
         .send(generation);
@@ -17,7 +17,7 @@ router.get('/:number', function (req, res, next) {
 
 router.get('/:number/species', function (req, res, next) {
   
-  pokemonDb.getRegionSpecies(req.params.number)
+  pokemonDbReader.getRegionSpecies(req.params.number)
     .then(function (generation) {
       res.status(200)
         .send(generation);

@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var pokemonDb = require('../database/pokemon');
+var pokemonDbReader = require('../database/pokemonreader');
 var log = require('../log');
 
 router.get('/', function (req, res, next) {
   
-  pokemonDb.listRegions()
+  pokemonDbReader.listRegions()
     .then(function (regions) {
       res.status(200)
         .send(regions);

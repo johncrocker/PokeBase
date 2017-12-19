@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var pokemonDb = require('../database/pokemon');
+var pokemonDbReader = require('../database/pokemonreader');
 var log = require('../log');
 
 router.get('/:triggerId/:itemId', function (req, res, next) {
 
-    pokemonDb.getEvolutionTrigger(req.params.triggerId, req.params.itemId)
+    pokemonDbReader.getEvolutionTrigger(req.params.triggerId, req.params.itemId)
         .then(function (items) {
             res.status(200)
                 .send(items);
@@ -17,7 +17,7 @@ router.get('/:triggerId/:itemId', function (req, res, next) {
 
 router.get('/items', function (req, res, next) {
 
-    pokemonDb.listItems()
+    pokemonDbReader.listItems()
         .then(function (items) {
             res.status(200)
                 .send(items);
@@ -29,7 +29,7 @@ router.get('/items', function (req, res, next) {
 
 router.get('/triggers', function (req, res, next) {
 
-    pokemonDb.listEvolutionTriggers()
+    pokemonDbReader.listEvolutionTriggers()
         .then(function (triggers) {
             res.status(200)
                 .send(triggers);
