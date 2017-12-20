@@ -37,7 +37,7 @@ app.controller('PokemonController',
 
             for (var i = 0; i < data.length; i++) {
                 var row = data[i];
-                if (row.data.errorThrown == null) {
+                if (row.data.status == null) {
                     switch (row.type) {
                         case "species":
                             result.species = row.data.species;
