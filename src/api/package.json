@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "forever": "^0.15.3",
+    "generator-ko": "^0.2.0",
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-handlebars": "^1.0.0",
@@ -31,6 +32,7 @@
     "handlebars": "^4.0.11",
     "jshint": "^2.9.5",
     "mocha": "^4.0.1",
-    "nodemon": "^1.12.1"
+    "nodemon": "^1.12.1",
+    "yo": "^2.0.0"
   }
 }

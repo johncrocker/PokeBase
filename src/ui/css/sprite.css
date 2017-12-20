@@ -4,6 +4,8 @@
     display: block;
 }
 
+.pogo.none {width:0px;height:0px;visibility: hidden; display:none !important}
+
 .pogo.dex-1 {width: 64px; height: 64px; background-position: 0 0;}
 .pogo.dex-2 {width: 64px; height: 64px; background-position: 0 -64px;}
 .pogo.dex-3 {width: 64px; height: 64px; background-position: 0 -128px;}
