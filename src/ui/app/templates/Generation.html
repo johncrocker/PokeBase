@@ -1,0 +1,22 @@
+<strong>Generation {{data.generation.number}}</strong> ({{generation.region}} region)
+
+<table class="table table-bordered">
+    <tr ng-repeat="pokemon in data.generation.pokemon">
+        <td valign="absmiddle">
+            <button class="btn btn-primary" ng-click="viewPokemon(pokemon.id)">
+                <i class="fa fa-eye" aria-hidden="true" title="View Pokemon"></i>
+            </button>
+        </td>
+        <td valign="absmiddle">
+            <strong>{{pokemon.id}}</strong>
+        </td>
+        <td valign="absmiddle">
+            <a class="pointer" ng-click="viewPokemon(pokemon.id)">
+                <div class="pogo dex-{{pokemon.id}}"></div>
+            </a>
+        </td>
+        <td valign="absmiddle">
+            {{pokemon.name}}
+        </td>
+    </tr>
+</table>

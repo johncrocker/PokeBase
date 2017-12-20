@@ -1,0 +1,130 @@
+<div class="panel">
+    <div class="row">
+        <div class="col-xs-4">
+            <a ng-click="viewPokemon(data.pokemon.id)" title="{{pokemon.name}}" class="pointer">
+                <div class="pogo dex-{{data.pokemon.id}}"></div>
+            </a>
+        </div>
+        <div class="col-xs-8">
+            <h3> {{data.pokemon.name}}</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Types</strong>
+        </div>
+        <div class="col-xs-8">
+            {{data.pokemon.types.join(", ")}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Generation</strong>
+        </div>
+        <div class="col-xs-8">
+            {{data.species.generationNumber}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Region</strong>
+        </div>
+        <div class="col-xs-8">
+            {{data.species.region}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Attack:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.statAtk}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Defense:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.statDef}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Stamina:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.statSta}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Max CP:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.maxCP}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Candies to Evolve:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.candyToEvolve}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Buddy Distance:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.buddyDistance}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Capture Rate:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.captureRate}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Flee Rate:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.fleeRate}}</div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <strong>Legendary:</strong>
+        </div>
+        <div class="col-xs-8">{{data.pokemon.isLegendary}}</div>
+    </div>
+</div>
+
+<div class="panel">
+    <p class="title">Attacks</p>
+    <table class="table-bordered table-condensed">
+        <tr>
+            <td>Defense</td>
+            <td ng-repeat="attack in data.attacks.cols">{{attack}}</td>
+        </tr>
+        <tr ng-repeat="defense in data.attacks.rows">
+            <td ng-repeat="stat in defense" style="background-color:{{stat.bgcolor}};color:{{stat.fgcolor}};text-align:center;">
+                <span ng-if="stat.bgcolor">
+                    {{stat.effectiveness}}
+                </span>
+                <span ng-if="!stat.bgcolor">{{stat}}</span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="panel">
+    <p class="title">Evolutions</p>
+    <table border="0" cellpadding="0" cellspacing="0">
+        <tr ng-repeat="evolution in data.evolutions">
+            <td ng-repeat="pokemon in evolution" valign="absmiddle">
+                <div class="col">
+                    <a ng-click="viewPokemon(pokemon.id)" title="{{pokemon.name}}" class="pointer">
+                        <div title="{{pokemon.name}}" class="pogo dex-{{pokemon.id}}"></div>
+                        <center>
+                            <small>Gen {{pokemon.generation}}</small>
+                        </center>
+                    </a>
+                </div>
+                <div class="col" ng-hide="$last">
+                    <i class="fa fa-arrow-right fa-4 grey" aria-hidden="true" title="Evolves to"></i>
+                </div>
+            </td>
+        </tr>
+
+    </table>
+</div>
