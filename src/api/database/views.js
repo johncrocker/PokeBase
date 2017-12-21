@@ -38,6 +38,7 @@ lib.getPokemon = function (data) {
             captureRate: item.captureRate,
             fleeRate: item.fleeRate,
             buddyDistance: item.buddyDistance,
+            eggDistance: item.eggDistance,
             isLegendary: item.isLegendary,
             maxCP: item.maxCP,
             raidBossCP: item.raidBossCP
@@ -183,6 +184,7 @@ lib.getSpecies = function (data) {
             captureRate: element.captureRate,
             fleeRate: element.fleeRate,
             buddyDistance: element.buddyDistance,
+            eggDistance: element.eggDistance,
             isLegendary: element.isLegendary,
             raidBossCP: element.raidBossCP,
             maxCP: element.maxCP

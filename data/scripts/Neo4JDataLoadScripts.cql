@@ -99,8 +99,8 @@ MATCH (pokemon:Pokemon {id: value.pokemon_id}), (move:Move {id: value.move_id})
 MERGE(pokemon)-[:HAS_MOVE]->(move);
 
 MATCH (p:Pokemon)
-SET p.eggDistance = null
+SET p.eggDistance = null;
 
 LOAD CSV WITH HEADERS FROM "file:///egg_distance.csv" AS value 
 MATCH (p:Pokemon {name: LOWER(value.name)})
-SET p.eggDistance = value.distance
+SET p.eggDistance = value.distance;
