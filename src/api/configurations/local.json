@@ -5,7 +5,5 @@
     "port": 3003,
     "imagePath": "../../images",
     "mostRecentGeneration": "3",
-    "clientId": "319928491382-flr5d5hjbkptgbga6ic3cki0cllt2lif.apps.googleusercontent.com",
-    "secret": "eSPPJekBPYECLF-CI8NrD1Nd",
     "callbackUrl": "https://synergysoftware.duckdns.org/auth/google/callback"
 }

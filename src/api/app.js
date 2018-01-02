@@ -1,3 +1,4 @@
+var passport = require('passport');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -8,9 +9,20 @@ var log = require('./log');
 var api = require('./routes/api');
 
 var app = express();
+app.set('trust proxy', 1) // trust first proxy
 
 // Setup authentication here
 app.use(require('./routes/auth'));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(require('express-session')({
+  secret: '27A6B936-33F2-4EA9-A09F-5FBBB8C01826',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    secure: true
+  }
+}));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

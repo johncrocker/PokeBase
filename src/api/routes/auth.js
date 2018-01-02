@@ -6,10 +6,9 @@ var router = express.Router({
     mergeParams: true
 });
 
-
 passport.use(new GoogleStrategy({
-        clientID: config.get('clientId'),
-        clientSecret: config.get('secret'),
+        clientID: process.env.POKEDEX_CLIENT_ID,
+        clientSecret: process.env.POKEDEX_SECRET,
         callbackURL: config.get('callbackUrl')
     },
     function (accessToken, refreshToken, profile, cb) {
@@ -20,6 +19,13 @@ passport.use(new GoogleStrategy({
         });
     }));
 
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
 
 router.get('/auth/google',
     passport.authenticate('google', {
