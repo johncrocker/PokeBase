@@ -24,6 +24,16 @@ var app = angular.module('app', ['ngRoute', 'ngResource', 'ui.bootstrap'])
             templateUrl: '/app/templates.min/Evolutions.html',
             controller: 'EvolutionsController'
         });
+
+        $routeProvider.when('/PrivacyPolicy', {
+            templateUrl: '/app/templates.min/PrivacyPolicy.html',
+            controller: 'PrivacyPolicyController'
+        });
+
+        $routeProvider.when('/TermsOfService', {
+            templateUrl: '/app/templates.min/TermsOfService.html',
+            controller: 'TermsOfServiceController'
+        });
     })
     .run(function () {
 

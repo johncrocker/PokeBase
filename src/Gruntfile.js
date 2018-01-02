@@ -31,7 +31,9 @@ module.exports = function (grunt) {
                     'ui/app/templates.min/Generation.html': 'ui/app/templates/Generation.html',
                     'ui/app/templates.min/Generations.html': 'ui/app/templates/Generations.html',
                     'ui/app/templates.min/Home.html': 'ui/app/templates/Home.html',
-                    'ui/app/templates.min/Pokemon.html': 'ui/app/templates/Pokemon.html'
+                    'ui/app/templates.min/Pokemon.html': 'ui/app/templates/Pokemon.html',
+                    'ui/app/templates.min/PrivacyPolicy.html': 'ui/app/templates/PrivacyPolicy.html',
+                    'ui/app/templates.min/TermsOfService.html': 'ui/app/templates/TermsOfService.html'
                 }
             }
         } 

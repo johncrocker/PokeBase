@@ -9,6 +9,9 @@ var api = require('./routes/api');
 
 var app = express();
 
+// Setup authentication here
+app.use(require('./routes/auth'));
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(bodyParser.json());
