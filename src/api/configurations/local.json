@@ -4,5 +4,6 @@
     "dbPassword": "password123",
     "port": 3003,
     "imagePath": "../../images",
-    "mostRecentGeneration": "3"
+    "mostRecentGeneration": "3",
+    "callbackUrl": "https://synergysoftware.duckdns.org/auth/google/callback"
 }
