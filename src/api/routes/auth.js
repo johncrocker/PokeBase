@@ -9,12 +9,13 @@ var router = express.Router({
 passport.use(new GoogleStrategy({
         clientID: process.env.POKEDEX_CLIENT_ID,
         clientSecret: process.env.POKEDEX_SECRET,
-        callbackURL: config.get('callbackUrl')
+        callbackURL: process.env.POKEDEX_CALLBACK_URL
     },
     function (accessToken, refreshToken, profile, cb) {
         User.findOrCreate({
             googleId: profile.id
         }, function (err, user) {
+            console.log(user);
             return cb(err, user);
         });
     }));
