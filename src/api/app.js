@@ -5,39 +5,46 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var config = require('./config');
 var log = require('./log');
-
+var user = require('./database/user');
 var api = require('./routes/api');
 
 var app = express();
 app.set('trust proxy', 1) // trust first proxy
-
-// Setup authentication here
-app.use(require('./routes/auth'));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(require('express-session')({
   secret: '27A6B936-33F2-4EA9-A09F-5FBBB8C01826',
   resave: true,
   saveUninitialized: true,
-  cookie: {
-    secure: true
-  }
+  cookie: {}
 }));
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Setup authentication here
+app.use(require('./routes/auth'));
 
 app.use(function (req, res, next) {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Pragma', 'no-cache');
   next();
+
 });
 
-app.use(cookieParser());
+app.use(function (req, res, next) {
+  if ((!req.path.toLowerCase().startsWith("/auth")) && (!req.path.toLowerCase().startsWith('/accessdenied.html'))) {
+    if (req.user == null) {
+      res.redirect('/auth/google');
+      return;
+    }
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, '../ui')));
 app.use('/api', api);
 
@@ -57,6 +64,8 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500).send(err);
 });
+
+user.ensureDatabase();
 
 log.info('Listening on port ', config.get('port'))
 
