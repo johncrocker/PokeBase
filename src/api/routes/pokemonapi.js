@@ -4,7 +4,6 @@ var router = express.Router();
 var pokemonDbReader = require('../database/pokemonreader');
 var log = require('../log');
 var config = require('../config');
-var image = require('../lib/image');
 
 router.get('/:name', function (req, res, next) {
 
@@ -62,18 +61,6 @@ router.get('/:name/evolutions', function (req, res, next) {
       res.status(e.status).send(e);
     });
 });
-
-router.get('/:name/image', function (req, res, next) {
-  var size = (req.query.size ? parseInt(req.query.size) : 0);
-
-  pokemonDbReader.getPokemon(req.params.name)
-    .then(function (pokemon) {
-      image.downloadImage(pad(pokemon.id, 3) + '.png', res, size);
-    }).catch(function (e) {
-      image.downloadImage('empty.jpg', res, size);
-    });
-});
-
 
 function pad(n, width, z) {
   z = z || '0';
